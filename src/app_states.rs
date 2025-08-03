@@ -2,23 +2,23 @@ use bevy::app::Plugin;
 use bevy::prelude::*;
 
 // Constants
-const _NAME: &str = "app_states";
+const NAME: &str = "app_states";
 
 // Types
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States)]
 pub enum AppState {
     #[default]
     MainMenu,
-    _Running,
-    _Quitting,
+    Running,
+    Quitting,
 }
 
 // Plugin
 pub struct AppStatesPlugin;
 
 impl Plugin for AppStatesPlugin {
-    fn build(&self, _app: &mut App) {
-        // nothing to do until now
+    fn build(&self, app: &mut App) {
+        app.add_systems(OnEnter(AppState::Quitting), quitting);
     }
 }
 
@@ -29,6 +29,10 @@ impl Plugin for AppStatesPlugin {
 // Events
 
 // Systems
+fn quitting(mut exit: EventWriter<AppExit>) {
+    debug!("quitting {}", NAME);
+    exit.write(AppExit::Success);
+}
 
 // helper functions
 
