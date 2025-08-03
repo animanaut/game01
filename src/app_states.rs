@@ -8,6 +8,7 @@ const NAME: &str = "app_states";
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States)]
 pub enum AppState {
     #[default]
+    Splash,
     MainMenu,
     Running,
     Quitting,

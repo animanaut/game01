@@ -2,9 +2,11 @@ use app_states::{AppState, AppStatesPlugin};
 use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
 use main_menu::MainMenuPlugin;
+use splash::SplashPlugin;
 
 mod app_states;
 mod main_menu;
+mod splash;
 
 fn main() {
     App::new()
@@ -15,16 +17,12 @@ fn main() {
             meta_check: AssetMetaCheck::Never,
             ..default()
         }))
-        .add_plugins((AppStatesPlugin, MainMenuPlugin))
+        .add_plugins((AppStatesPlugin, MainMenuPlugin, SplashPlugin))
         .init_state::<AppState>()
         .add_systems(Startup, setup)
         .run();
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2d);
-    commands.spawn(Sprite {
-        image: asset_server.load("ducky.png"),
-        ..Default::default()
-    });
 }
