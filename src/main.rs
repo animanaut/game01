@@ -1,5 +1,10 @@
+use app_states::{AppState, AppStatesPlugin};
 use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
+use main_menu::MainMenuPlugin;
+
+mod app_states;
+mod main_menu;
 
 fn main() {
     App::new()
@@ -10,6 +15,8 @@ fn main() {
             meta_check: AssetMetaCheck::Never,
             ..default()
         }))
+        .add_plugins((AppStatesPlugin, MainMenuPlugin))
+        .init_state::<AppState>()
         .add_systems(Startup, setup)
         .run();
 }
