@@ -2094,7 +2094,7 @@ dependencies = [
 
 [[package]]
 name = "game01"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "bevy",
  "log",
