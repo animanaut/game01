@@ -1,10 +1,12 @@
 use app_states::{AppState, AppStatesPlugin};
 use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
+use in_game::InGamePlugin;
 use main_menu::MainMenuPlugin;
 use splash::SplashPlugin;
 
 mod app_states;
+mod in_game;
 mod main_menu;
 mod splash;
 
@@ -17,7 +19,7 @@ fn main() {
             meta_check: AssetMetaCheck::Never,
             ..default()
         }))
-        .add_plugins((AppStatesPlugin, MainMenuPlugin, SplashPlugin))
+        .add_plugins((AppStatesPlugin, MainMenuPlugin, SplashPlugin, InGamePlugin))
         .init_state::<AppState>()
         .add_systems(Startup, setup)
         .run();

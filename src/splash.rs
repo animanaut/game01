@@ -36,13 +36,13 @@ fn start_splash(mut commands: Commands, asset_server: Res<AssetServer>) {
     // entities
     commands
         .spawn(Sprite {
-            image: asset_server.load("ducky.png"),
+            image: asset_server.load("bevy_icon.png"),
             ..Default::default()
         })
         .insert(SplashComponent);
 
     // resources
-    commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
+    commands.insert_resource(SplashTimer(Timer::from_seconds(2.0, TimerMode::Once)));
 }
 fn update_splash(
     time: Res<Time>,
