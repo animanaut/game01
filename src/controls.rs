@@ -16,6 +16,7 @@ impl Plugin for ControlsPlugin {
         app
             // Events
             .add_event::<Right>()
+            .add_event::<Left>()
             // Systems
             .add_systems(OnEnter(Running), start_controls)
             .add_systems(Update, (update_controls).run_if(in_state(Running)))
@@ -33,13 +34,20 @@ pub struct PlayerControlled;
 #[derive(Event)]
 pub struct Right;
 
+#[derive(Event)]
+pub struct Left;
+
 // Systems
 fn start_controls(mut _commands: Commands) {
     debug!("starting {}", NAME);
 }
 
-fn update_controls(mut right: EventReader<Right>) {
+fn update_controls(mut right: EventReader<Right>, mut left: EventReader<Left>) {
     debug!("updating {}", NAME);
+
+    for _ in left.read() {
+        debug!("received left event");
+    }
 
     for _ in right.read() {
         debug!("received right event");

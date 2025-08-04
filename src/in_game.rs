@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 use crate::{
     app_states::AppState,
-    controls::{PlayerControlled, Right},
+    controls::{Left, PlayerControlled, Right},
     sprites::{SPRITE_DIM, SPRITE_SCALE},
 };
 
@@ -43,9 +43,18 @@ fn update_in_game() {
 
 fn handle_input(
     mut players: Query<&mut Transform, With<PlayerControlled>>,
+    mut left: EventReader<Left>,
     mut right: EventReader<Right>,
 ) {
     debug!("handle input {}", NAME);
+
+    for _ in left.read() {
+        debug!("handle left input");
+
+        for mut t in players.iter_mut() {
+            t.translation.x -= SPRITE_SCALE as f32 * SPRITE_DIM as f32;
+        }
+    }
 
     for _ in right.read() {
         debug!("handle right input");

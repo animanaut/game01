@@ -3,7 +3,10 @@ use bevy::app::Plugin;
 use AppState::Running;
 use bevy::prelude::*;
 
-use crate::{app_states::AppState, controls::Right};
+use crate::{
+    app_states::AppState,
+    controls::{Left, Right},
+};
 
 // Constants
 const NAME: &str = "keyboard";
@@ -32,12 +35,18 @@ fn start_keyboard_controls(mut _commands: Commands) {
 
 fn update_keyboard_controls(
     keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut left: EventWriter<Left>,
     mut right: EventWriter<Right>,
 ) {
     debug!("updating {}", NAME);
 
+    if keyboard_input.pressed(KeyCode::KeyA) {
+        debug!("sending left event");
+        left.write(Left);
+    }
+
     if keyboard_input.pressed(KeyCode::KeyD) {
-        debug!("sending right event {}", NAME);
+        debug!("sending right event");
         right.write(Right);
     }
 }
