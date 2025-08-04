@@ -14,6 +14,7 @@ const Y_TILES: u32 = 22;
 const GAP: u32 = 1;
 
 const HERO: usize = 9 as usize * X_TILES as usize + 30 as usize;
+const OPEN_DOOR_1: usize = 9 as usize * X_TILES as usize + 2 as usize;
 
 // Plugin
 pub struct SpritesPlugin;
@@ -67,6 +68,19 @@ fn start_sprite_atlas(
             ..default()
         },
         Transform::from_scale(Vec3::splat(6.0)).with_translation(Vec3::new(0.0, 0.0, 0.0)),
+    ));
+
+    commands.spawn((
+        MySprite,
+        Sprite {
+            image: sprite_sheet_texture.0.clone(),
+            texture_atlas: Some(TextureAtlas {
+                layout: texture_atlas_layout.clone(),
+                index: OPEN_DOOR_1,
+            }),
+            ..default()
+        },
+        Transform::from_scale(Vec3::splat(6.0)).with_translation(Vec3::new(6.0 * 32.0, 0.0, 0.0)),
     ));
 }
 
