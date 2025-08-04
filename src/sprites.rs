@@ -15,8 +15,8 @@ const X_TILES: u32 = 49;
 const Y_TILES: u32 = 22;
 const GAP: u32 = 1;
 
-const HERO: usize = 9 as usize * X_TILES as usize + 30 as usize;
-const OPEN_DOOR_1: usize = 9 as usize * X_TILES as usize + 2 as usize;
+const HERO: usize = 9_usize * X_TILES as usize + 30_usize;
+const OPEN_DOOR_1: usize = 9_usize * X_TILES as usize + 2_usize;
 
 // Plugin
 pub struct SpritesPlugin;
@@ -77,6 +77,7 @@ fn start_sprite_atlas(
         MySprite,
         Sprite {
             image: sprite_sheet_texture.0.clone(),
+            color: Color::linear_rgb(0.0, 1.0, 1.0),
             texture_atlas: Some(TextureAtlas {
                 layout: texture_atlas_layout.clone(),
                 index: OPEN_DOOR_1,

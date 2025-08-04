@@ -52,7 +52,7 @@ fn handle_input(
         debug!("handle left input");
 
         for mut t in players.iter_mut() {
-            t.translation.x -= SPRITE_SCALE as f32 * SPRITE_DIM as f32;
+            t.translation.x -= SPRITE_SCALE * SPRITE_DIM as f32;
         }
     }
 
@@ -60,7 +60,7 @@ fn handle_input(
         debug!("handle right input");
 
         for mut t in players.iter_mut() {
-            t.translation.x += SPRITE_SCALE as f32 * SPRITE_DIM as f32;
+            t.translation.x += SPRITE_SCALE * SPRITE_DIM as f32;
         }
     }
 }
