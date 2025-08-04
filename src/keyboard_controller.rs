@@ -40,12 +40,12 @@ fn update_keyboard_controls(
 ) {
     debug!("updating {}", NAME);
 
-    if keyboard_input.pressed(KeyCode::KeyA) {
+    if keyboard_input.just_pressed(KeyCode::KeyA) {
         debug!("sending left event");
         left.write(Left);
     }
 
-    if keyboard_input.pressed(KeyCode::KeyD) {
+    if keyboard_input.just_pressed(KeyCode::KeyD) {
         debug!("sending right event");
         right.write(Right);
     }
