@@ -1,13 +1,17 @@
 use app_states::{AppState, AppStatesPlugin};
 use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
+use controls::ControlsPlugin;
 use in_game::InGamePlugin;
+use keyboard_controller::KeyboardControllerPlugin;
 use main_menu::MainMenuPlugin;
 use splash::SplashPlugin;
 use sprites::SpritesPlugin;
 
 mod app_states;
+mod controls;
 mod in_game;
+mod keyboard_controller;
 mod main_menu;
 mod splash;
 mod sprites;
@@ -31,6 +35,8 @@ fn main() {
             SplashPlugin,
             InGamePlugin,
             SpritesPlugin,
+            ControlsPlugin,
+            KeyboardControllerPlugin,
         ))
         .init_state::<AppState>()
         .add_systems(Startup, setup)

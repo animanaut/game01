@@ -6,19 +6,16 @@ use bevy::prelude::*;
 use crate::{app_states::AppState, controls::Right};
 
 // Constants
-const NAME: &str = "in_game";
+const NAME: &str = "keyboard";
 
 // Plugin
-pub struct InGamePlugin;
+pub struct KeyboardControllerPlugin;
 
-impl Plugin for InGamePlugin {
+impl Plugin for KeyboardControllerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Running), start_in_game)
-            .add_systems(
-                Update,
-                (update_in_game, handle_input).run_if(in_state(Running)),
-            )
-            .add_systems(OnExit(Running), stop_in_game);
+        app.add_systems(OnEnter(Running), start_keyboard_controls)
+            .add_systems(Update, (update_keyboard_controls).run_if(in_state(Running)))
+            .add_systems(OnExit(Running), stop_keyboard_controls);
     }
 }
 
@@ -29,23 +26,23 @@ impl Plugin for InGamePlugin {
 // Events
 
 // Systems
-fn start_in_game(mut _commands: Commands) {
+fn start_keyboard_controls(mut _commands: Commands) {
     debug!("starting {}", NAME);
 }
 
-fn update_in_game() {
+fn update_keyboard_controls(
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut right: EventWriter<Right>,
+) {
     debug!("updating {}", NAME);
-}
 
-fn handle_input(mut right: EventReader<Right>) {
-    debug!("handle input {}", NAME);
-
-    for _ in right.read() {
-        debug!("handle right input");
+    if keyboard_input.pressed(KeyCode::KeyD) {
+        debug!("sending right event {}", NAME);
+        right.write(Right);
     }
 }
 
-fn stop_in_game(mut _commands: Commands) {
+fn stop_keyboard_controls(mut _commands: Commands) {
     debug!("stopping {}", NAME);
 }
 

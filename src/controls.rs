@@ -3,22 +3,23 @@ use bevy::app::Plugin;
 use AppState::Running;
 use bevy::prelude::*;
 
-use crate::{app_states::AppState, controls::Right};
+use crate::app_states::AppState;
 
 // Constants
-const NAME: &str = "in_game";
+const NAME: &str = "controls";
 
 // Plugin
-pub struct InGamePlugin;
+pub struct ControlsPlugin;
 
-impl Plugin for InGamePlugin {
+impl Plugin for ControlsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Running), start_in_game)
-            .add_systems(
-                Update,
-                (update_in_game, handle_input).run_if(in_state(Running)),
-            )
-            .add_systems(OnExit(Running), stop_in_game);
+        app
+            // Events
+            .add_event::<Right>()
+            // Systems
+            .add_systems(OnEnter(Running), start_controls)
+            .add_systems(Update, (update_controls).run_if(in_state(Running)))
+            .add_systems(OnExit(Running), stop_controls);
     }
 }
 
@@ -27,25 +28,23 @@ impl Plugin for InGamePlugin {
 // Resources
 
 // Events
+#[derive(Event)]
+pub struct Right;
 
 // Systems
-fn start_in_game(mut _commands: Commands) {
+fn start_controls(mut _commands: Commands) {
     debug!("starting {}", NAME);
 }
 
-fn update_in_game() {
+fn update_controls(mut right: EventReader<Right>) {
     debug!("updating {}", NAME);
-}
-
-fn handle_input(mut right: EventReader<Right>) {
-    debug!("handle input {}", NAME);
 
     for _ in right.read() {
-        debug!("handle right input");
+        debug!("received right event");
     }
 }
 
-fn stop_in_game(mut _commands: Commands) {
+fn stop_controls(mut _commands: Commands) {
     debug!("stopping {}", NAME);
 }
 
