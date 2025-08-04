@@ -24,6 +24,8 @@ impl Plugin for ControlsPlugin {
 }
 
 // Components
+#[derive(Component)]
+pub struct PlayerControlled;
 
 // Resources
 

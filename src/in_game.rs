@@ -3,7 +3,11 @@ use bevy::app::Plugin;
 use AppState::Running;
 use bevy::prelude::*;
 
-use crate::{app_states::AppState, controls::Right};
+use crate::{
+    app_states::AppState,
+    controls::{PlayerControlled, Right},
+    sprites::{SPRITE_DIM, SPRITE_SCALE},
+};
 
 // Constants
 const NAME: &str = "in_game";
@@ -37,11 +41,18 @@ fn update_in_game() {
     debug!("updating {}", NAME);
 }
 
-fn handle_input(mut right: EventReader<Right>) {
+fn handle_input(
+    mut players: Query<&mut Transform, With<PlayerControlled>>,
+    mut right: EventReader<Right>,
+) {
     debug!("handle input {}", NAME);
 
     for _ in right.read() {
         debug!("handle right input");
+
+        for mut t in players.iter_mut() {
+            t.translation.x += SPRITE_SCALE as f32 * SPRITE_DIM as f32;
+        }
     }
 }
 

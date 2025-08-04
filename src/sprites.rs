@@ -3,12 +3,14 @@ use bevy::app::Plugin;
 use AppState::Running;
 use bevy::prelude::*;
 
-use crate::app_states::AppState;
+use crate::{app_states::AppState, controls::PlayerControlled};
 
 // Constants
 const NAME: &str = "sprites";
 
-const SPRITE_DIM: u32 = 16;
+pub const SPRITE_DIM: u32 = 16;
+pub const SPRITE_SCALE: f32 = 6.0;
+
 const X_TILES: u32 = 49;
 const Y_TILES: u32 = 22;
 const GAP: u32 = 1;
@@ -59,6 +61,7 @@ fn start_sprite_atlas(
 
     commands.spawn((
         MySprite,
+        PlayerControlled,
         Sprite {
             image: sprite_sheet_texture.0.clone(),
             texture_atlas: Some(TextureAtlas {
@@ -67,7 +70,7 @@ fn start_sprite_atlas(
             }),
             ..default()
         },
-        Transform::from_scale(Vec3::splat(6.0)).with_translation(Vec3::new(0.0, 0.0, 0.0)),
+        Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(Vec3::new(0.0, 0.0, 0.0)),
     ));
 
     commands.spawn((
@@ -80,7 +83,11 @@ fn start_sprite_atlas(
             }),
             ..default()
         },
-        Transform::from_scale(Vec3::splat(6.0)).with_translation(Vec3::new(6.0 * 32.0, 0.0, 0.0)),
+        Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(Vec3::new(
+            SPRITE_SCALE * 2.0 * SPRITE_DIM as f32,
+            0.0,
+            0.0,
+        )),
     ));
 }
 
