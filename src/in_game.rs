@@ -1,12 +1,12 @@
 use bevy::app::Plugin;
 
-use AppState::Running;
+use AppState::{MainMenu, Running};
 use bevy::prelude::*;
 
 use crate::{
     app_states::AppState,
     controls::{Left, PlayerControlled, Right},
-    sprites::{SPRITE_DIM, SPRITE_SCALE},
+    sprites::{ExfilSprite, SPRITE_DIM, SPRITE_SCALE},
 };
 
 // Constants
@@ -20,7 +20,7 @@ impl Plugin for InGamePlugin {
         app.add_systems(OnEnter(Running), start_in_game)
             .add_systems(
                 Update,
-                (update_in_game, handle_input).run_if(in_state(Running)),
+                (update_in_game, handle_input, check_for_exit).run_if(in_state(Running)),
             )
             .add_systems(OnExit(Running), stop_in_game);
     }
@@ -61,6 +61,21 @@ fn handle_input(
 
         for mut t in players.iter_mut() {
             t.translation.x += SPRITE_SCALE * SPRITE_DIM as f32;
+        }
+    }
+}
+
+fn check_for_exit(
+    mut next_state: ResMut<NextState<AppState>>,
+    players: Query<&mut Transform, (With<PlayerControlled>, Without<ExfilSprite>)>,
+    exfils: Query<&mut Transform, (With<ExfilSprite>, Without<PlayerControlled>)>,
+) {
+    debug!("checking exit {}", NAME);
+    if let Ok(player_transform) = players.single() {
+        for exfil_transform in exfils.iter() {
+            if player_transform.eq(exfil_transform) {
+                next_state.set(MainMenu);
+            }
         }
     }
 }

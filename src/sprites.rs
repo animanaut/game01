@@ -31,7 +31,10 @@ impl Plugin for SpritesPlugin {
 
 // Components
 #[derive(Component)]
-struct MySprite;
+pub struct MySprite;
+
+#[derive(Component)]
+pub struct ExfilSprite;
 
 // Resources
 #[derive(Resource, Clone)]
@@ -75,6 +78,7 @@ fn start_sprite_atlas(
 
     commands.spawn((
         MySprite,
+        ExfilSprite,
         Sprite {
             image: sprite_sheet_texture.0.clone(),
             color: Color::linear_rgb(0.0, 1.0, 1.0),
