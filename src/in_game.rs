@@ -84,11 +84,11 @@ fn handle_input(
         for (e, t, a) in players.iter_mut() {
             debug!("initial t of animation: {}", t.translation);
             let new_x = t.translation.x - SPRITE_SCALE * SPRITE_DIM as f32;
-            let mut new_end = t.clone();
+            let mut new_end = *t;
             new_end.translation.x = new_x;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = t.clone();
+                animation.start = *t;
                 animation.end = new_end;
             } else {
                 commands.entity(e).insert(Animation {
@@ -107,11 +107,11 @@ fn handle_input(
         for (e, t, a) in players.iter_mut() {
             debug!("initial t of animation: {}", t.translation);
             let new_x = t.translation.x + SPRITE_SCALE * SPRITE_DIM as f32;
-            let mut new_end = t.clone();
+            let mut new_end = *t;
             new_end.translation.x = new_x;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = t.clone();
+                animation.start = *t;
                 animation.end = new_end;
             } else {
                 commands.entity(e).insert(Animation {
