@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use bevy::app::Plugin;
 
 use AppState::Running;
@@ -24,7 +26,10 @@ pub struct SpritesPlugin;
 impl Plugin for SpritesPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(Running), start_sprite_atlas)
-            .add_systems(Update, (update_sprite_atlas).run_if(in_state(Running)))
+            .add_systems(
+                Update,
+                (update_sprite_atlas, update_animation_timer).run_if(in_state(Running)),
+            )
             .add_systems(OnExit(Running), stop_sprite_atlas);
     }
 }
@@ -35,6 +40,27 @@ pub struct MySprite;
 
 #[derive(Component)]
 pub struct ExfilSprite;
+
+#[derive(Component)]
+pub struct Animation {
+    pub timer: Timer,
+    pub function: EaseFunction,
+    pub start: Transform,
+    pub end: Transform,
+}
+
+impl Display for Animation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Animation: start: {} end: {} timer fraction: {}, timer remaining: {}",
+            self.start.translation,
+            self.end.translation,
+            self.timer.fraction(),
+            self.timer.remaining_secs()
+        )
+    }
+}
 
 // Resources
 #[derive(Resource, Clone)]
@@ -98,6 +124,21 @@ fn start_sprite_atlas(
 
 fn update_sprite_atlas() {
     debug!("updating {}", NAME);
+}
+
+fn update_animation_timer(
+    mut commands: Commands,
+    mut animations: Query<(Entity, &mut Animation)>,
+    time: Res<Time>,
+) {
+    debug!("updating move animation {}", NAME);
+    for (entity, mut animation) in animations.iter_mut() {
+        animation.timer.tick(time.delta());
+
+        if animation.timer.finished() {
+            commands.entity(entity).remove::<Animation>();
+        }
+    }
 }
 
 fn stop_sprite_atlas(mut commands: Commands, sprites: Query<Entity, With<MySprite>>) {

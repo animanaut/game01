@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::app::Plugin;
 
 use AppState::{MainMenu, Running};
@@ -6,11 +8,12 @@ use bevy::prelude::*;
 use crate::{
     app_states::AppState,
     controls::{Left, PlayerControlled, Right},
-    sprites::{ExfilSprite, SPRITE_DIM, SPRITE_SCALE},
+    sprites::{Animation, ExfilSprite, SPRITE_DIM, SPRITE_SCALE},
 };
 
 // Constants
 const NAME: &str = "in_game";
+const ANIM_DURATION: u64 = 200;
 
 // Plugin
 pub struct InGamePlugin;
@@ -20,7 +23,14 @@ impl Plugin for InGamePlugin {
         app.add_systems(OnEnter(Running), start_in_game)
             .add_systems(
                 Update,
-                (update_in_game, handle_input, check_for_exit).run_if(in_state(Running)),
+                (
+                    update_in_game,
+                    handle_input,
+                    handle_animation,
+                    check_for_exit,
+                    log_transforms,
+                )
+                    .run_if(in_state(Running)),
             )
             .add_systems(OnExit(Running), stop_in_game);
     }
@@ -41,8 +51,28 @@ fn update_in_game() {
     debug!("updating {}", NAME);
 }
 
+fn log_transforms(transforms: Query<(&Transform, Option<&Animation>), With<PlayerControlled>>) {
+    for (_t, a) in transforms.iter() {
+        if let Some(a) = a {
+            debug!("logging animation: {}", a);
+        }
+    }
+}
+
+fn handle_animation(mut animations: Query<(&mut Transform, &Animation)>) {
+    debug!("handling animation {}", NAME);
+    for (mut t, a) in animations.iter_mut() {
+        let direction = a.end.translation - a.start.translation;
+        let eased_fraction = a.function.sample(a.timer.fraction());
+        if let Some(fraction) = eased_fraction {
+            t.translation = a.start.translation + direction * fraction;
+        }
+    }
+}
+
 fn handle_input(
-    mut players: Query<&mut Transform, With<PlayerControlled>>,
+    mut commands: Commands,
+    mut players: Query<(Entity, &Transform, Option<&mut Animation>), With<PlayerControlled>>,
     mut left: EventReader<Left>,
     mut right: EventReader<Right>,
 ) {
@@ -51,16 +81,46 @@ fn handle_input(
     for _ in left.read() {
         debug!("handle left input");
 
-        for mut t in players.iter_mut() {
-            t.translation.x -= SPRITE_SCALE * SPRITE_DIM as f32;
+        for (e, t, a) in players.iter_mut() {
+            debug!("initial t of animation: {}", t.translation);
+            let new_x = t.translation.x - SPRITE_SCALE * SPRITE_DIM as f32;
+            let mut new_end = t.clone();
+            new_end.translation.x = new_x;
+            if let Some(mut animation) = a {
+                animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
+                animation.start = t.clone();
+                animation.end = new_end;
+            } else {
+                commands.entity(e).insert(Animation {
+                    timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
+                    function: EaseFunction::CircularInOut,
+                    start: *t,
+                    end: new_end,
+                });
+            }
         }
     }
 
     for _ in right.read() {
         debug!("handle right input");
 
-        for mut t in players.iter_mut() {
-            t.translation.x += SPRITE_SCALE * SPRITE_DIM as f32;
+        for (e, t, a) in players.iter_mut() {
+            debug!("initial t of animation: {}", t.translation);
+            let new_x = t.translation.x + SPRITE_SCALE * SPRITE_DIM as f32;
+            let mut new_end = t.clone();
+            new_end.translation.x = new_x;
+            if let Some(mut animation) = a {
+                animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
+                animation.start = t.clone();
+                animation.end = new_end;
+            } else {
+                commands.entity(e).insert(Animation {
+                    timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
+                    function: EaseFunction::CircularInOut,
+                    start: *t,
+                    end: new_end,
+                });
+            }
         }
     }
 }
