@@ -5,7 +5,7 @@ use bevy::app::Plugin;
 use AppState::Running;
 use bevy::prelude::*;
 
-use crate::{app_states::AppState, controls::PlayerControlled};
+use crate::{app_states::AppState, controls::PlayerControlled, tiles::TileCoordinate};
 
 // Constants
 const NAME: &str = "sprites";
@@ -100,6 +100,7 @@ fn start_sprite_atlas(
             ..default()
         },
         Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(Vec3::new(0.0, 0.0, 0.0)),
+        TileCoordinate { x: 0, y: 0 },
     ));
 
     commands.spawn((
@@ -119,6 +120,7 @@ fn start_sprite_atlas(
             0.0,
             0.0,
         )),
+        TileCoordinate { x: 2, y: 0 },
     ));
 }
 

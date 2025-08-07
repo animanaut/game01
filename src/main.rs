@@ -7,6 +7,7 @@ use keyboard_controller::KeyboardControllerPlugin;
 use main_menu::MainMenuPlugin;
 use splash::SplashPlugin;
 use sprites::SpritesPlugin;
+use tiles::TilesPlugin;
 
 mod app_states;
 mod controls;
@@ -15,6 +16,7 @@ mod keyboard_controller;
 mod main_menu;
 mod splash;
 mod sprites;
+mod tiles;
 
 fn main() {
     App::new()
@@ -37,6 +39,7 @@ fn main() {
             SpritesPlugin,
             ControlsPlugin,
             KeyboardControllerPlugin,
+            TilesPlugin,
         ))
         .init_state::<AppState>()
         .add_systems(Startup, setup)
