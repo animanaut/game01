@@ -23,6 +23,7 @@ impl Plugin for TilesPlugin {
 
 // Components
 #[derive(Component)]
+#[allow(dead_code)]
 pub struct Tile;
 
 #[derive(Component)]
