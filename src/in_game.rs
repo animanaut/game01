@@ -126,23 +126,16 @@ fn handle_input(
 
         for (e, t, tc, a) in players.iter_mut() {
             debug!("initial t of animation: {}", t.translation);
-            let new_x = t.translation.x - SPRITE_SCALE * SPRITE_DIM as f32;
-            let mut new_end = *t;
-            new_end.translation.x = new_x;
             let mut new_end_tile = tc.clone();
             new_end_tile.x = tc.x - 1;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = *t;
-                animation.end = new_end;
                 animation.start_tile = tc.clone();
                 animation.end_tile = new_end_tile;
             } else {
                 commands.entity(e).insert(Animation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
-                    start: *t,
-                    end: new_end,
                     start_tile: tc.clone(),
                     end_tile: TileCoordinate {
                         x: tc.x - 1,
@@ -158,23 +151,16 @@ fn handle_input(
 
         for (e, t, tc, a) in players.iter_mut() {
             debug!("initial t of animation: {}", t.translation);
-            let new_x = t.translation.x + SPRITE_SCALE * SPRITE_DIM as f32;
-            let mut new_end = *t;
-            new_end.translation.x = new_x;
             let mut new_end_tile = tc.clone();
             new_end_tile.x = tc.x + 1;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = *t;
-                animation.end = new_end;
                 animation.start_tile = tc.clone();
                 animation.end_tile = new_end_tile;
             } else {
                 commands.entity(e).insert(Animation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
-                    start: *t,
-                    end: new_end,
                     start_tile: tc.clone(),
                     end_tile: TileCoordinate {
                         x: tc.x + 1,
