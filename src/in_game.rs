@@ -9,6 +9,7 @@ use crate::{
     app_states::AppState,
     controls::{Left, PlayerControlled, Right},
     sprites::{Animation, ExfilSprite, SPRITE_DIM, SPRITE_SCALE},
+    tiles::TileCoordinate,
 };
 
 // Constants
@@ -26,9 +27,10 @@ impl Plugin for InGamePlugin {
                 (
                     update_in_game,
                     handle_input,
-                    handle_animation,
+                    update_tile_coordinates,
+                    update_transforms,
                     check_for_exit,
-                    log_transforms,
+                    logging,
                 )
                     .run_if(in_state(Running)),
             )
@@ -51,28 +53,69 @@ fn update_in_game() {
     debug!("updating {}", NAME);
 }
 
-fn log_transforms(transforms: Query<(&Transform, Option<&Animation>), With<PlayerControlled>>) {
-    for (_t, a) in transforms.iter() {
+fn logging(
+    transforms: Query<
+        (Entity, &Transform, &TileCoordinate, Option<&Animation>),
+        With<PlayerControlled>,
+    >,
+) {
+    for (e, t, tc, a) in transforms.iter() {
         if let Some(a) = a {
-            debug!("logging animation: {}", a);
+            debug!("logging animation for {}: {}", e, a);
+            debug!("logging tile_coordinate for {}: {}", e, tc);
+            debug!(
+                "logging translation for {}: transform: {}",
+                e, t.translation
+            );
         }
     }
 }
 
-fn handle_animation(mut animations: Query<(&mut Transform, &Animation)>) {
+fn update_transforms(mut animations: Query<(&mut Transform, &Animation)>) {
     debug!("handling animation {}", NAME);
+
     for (mut t, a) in animations.iter_mut() {
-        let direction = a.end.translation - a.start.translation;
+        let start_t = Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(Vec3::new(
+            SPRITE_SCALE * a.start_tile.x as f32 * SPRITE_DIM as f32,
+            SPRITE_SCALE * a.start_tile.y as f32 * SPRITE_DIM as f32,
+            0.0,
+        ));
+
+        let end_t = Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(Vec3::new(
+            SPRITE_SCALE * a.end_tile.x as f32 * SPRITE_DIM as f32,
+            SPRITE_SCALE * a.end_tile.y as f32 * SPRITE_DIM as f32,
+            0.0,
+        ));
+        let direction = end_t.translation - start_t.translation;
         let eased_fraction = a.function.sample(a.timer.fraction());
         if let Some(fraction) = eased_fraction {
-            t.translation = a.start.translation + direction * fraction;
+            t.translation = start_t.translation + direction * fraction;
         }
     }
 }
 
+fn update_tile_coordinates(
+    mut animation_changes: Query<(&Animation, &mut TileCoordinate), Changed<Animation>>,
+) {
+    for (a, mut tc) in animation_changes.iter_mut() {
+        // TODO: just assign end_tile? throws a cannot be dereferenced currently
+        tc.x = a.end_tile.x;
+        tc.y = a.end_tile.y;
+    }
+}
+
+/// receive input events and trigger movement and animations here.
 fn handle_input(
     mut commands: Commands,
-    mut players: Query<(Entity, &Transform, Option<&mut Animation>), With<PlayerControlled>>,
+    mut players: Query<
+        (
+            Entity,
+            &Transform,
+            &mut TileCoordinate,
+            Option<&mut Animation>,
+        ),
+        With<PlayerControlled>,
+    >,
     mut left: EventReader<Left>,
     mut right: EventReader<Right>,
 ) {
@@ -81,21 +124,30 @@ fn handle_input(
     for _ in left.read() {
         debug!("handle left input");
 
-        for (e, t, a) in players.iter_mut() {
+        for (e, t, tc, a) in players.iter_mut() {
             debug!("initial t of animation: {}", t.translation);
             let new_x = t.translation.x - SPRITE_SCALE * SPRITE_DIM as f32;
             let mut new_end = *t;
             new_end.translation.x = new_x;
+            let mut new_end_tile = tc.clone();
+            new_end_tile.x = tc.x - 1;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
                 animation.start = *t;
                 animation.end = new_end;
+                animation.start_tile = tc.clone();
+                animation.end_tile = new_end_tile;
             } else {
                 commands.entity(e).insert(Animation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
                     start: *t,
                     end: new_end,
+                    start_tile: tc.clone(),
+                    end_tile: TileCoordinate {
+                        x: tc.x - 1,
+                        y: tc.y,
+                    },
                 });
             }
         }
@@ -104,21 +156,30 @@ fn handle_input(
     for _ in right.read() {
         debug!("handle right input");
 
-        for (e, t, a) in players.iter_mut() {
+        for (e, t, tc, a) in players.iter_mut() {
             debug!("initial t of animation: {}", t.translation);
             let new_x = t.translation.x + SPRITE_SCALE * SPRITE_DIM as f32;
             let mut new_end = *t;
             new_end.translation.x = new_x;
+            let mut new_end_tile = tc.clone();
+            new_end_tile.x = tc.x + 1;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
                 animation.start = *t;
                 animation.end = new_end;
+                animation.start_tile = tc.clone();
+                animation.end_tile = new_end_tile;
             } else {
                 commands.entity(e).insert(Animation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
                     start: *t,
                     end: new_end,
+                    start_tile: tc.clone(),
+                    end_tile: TileCoordinate {
+                        x: tc.x + 1,
+                        y: tc.y,
+                    },
                 });
             }
         }

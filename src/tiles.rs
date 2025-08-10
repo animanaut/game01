@@ -26,10 +26,10 @@ impl Plugin for TilesPlugin {
 #[allow(dead_code)]
 pub struct Tile;
 
-#[derive(Component)]
+#[derive(Component, Clone, Default)]
 pub struct TileCoordinate {
-    pub x: u64,
-    pub y: u64,
+    pub x: i64,
+    pub y: i64,
 }
 
 impl Display for TileCoordinate {
