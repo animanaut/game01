@@ -76,14 +76,14 @@ fn update_transforms(mut animations: Query<(&mut Transform, &Animation)>) {
 
     for (mut t, a) in animations.iter_mut() {
         let start_t = Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(Vec3::new(
-            SPRITE_SCALE * a.start_tile.x as f32 * SPRITE_DIM as f32,
-            SPRITE_SCALE * a.start_tile.y as f32 * SPRITE_DIM as f32,
+            SPRITE_SCALE * a.start.x as f32 * SPRITE_DIM as f32,
+            SPRITE_SCALE * a.start.y as f32 * SPRITE_DIM as f32,
             0.0,
         ));
 
         let end_t = Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(Vec3::new(
-            SPRITE_SCALE * a.end_tile.x as f32 * SPRITE_DIM as f32,
-            SPRITE_SCALE * a.end_tile.y as f32 * SPRITE_DIM as f32,
+            SPRITE_SCALE * a.end.x as f32 * SPRITE_DIM as f32,
+            SPRITE_SCALE * a.end.y as f32 * SPRITE_DIM as f32,
             0.0,
         ));
         let direction = end_t.translation - start_t.translation;
@@ -99,8 +99,8 @@ fn update_tile_coordinates(
 ) {
     for (a, mut tc) in animation_changes.iter_mut() {
         // TODO: just assign end_tile? throws a cannot be dereferenced currently
-        tc.x = a.end_tile.x;
-        tc.y = a.end_tile.y;
+        tc.x = a.end.x;
+        tc.y = a.end.y;
     }
 }
 
@@ -130,14 +130,14 @@ fn handle_input(
             new_end_tile.x = tc.x - 1;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start_tile = tc.clone();
-                animation.end_tile = new_end_tile;
+                animation.start = tc.clone();
+                animation.end = new_end_tile;
             } else {
                 commands.entity(e).insert(Animation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
-                    start_tile: tc.clone(),
-                    end_tile: TileCoordinate {
+                    start: tc.clone(),
+                    end: TileCoordinate {
                         x: tc.x - 1,
                         y: tc.y,
                     },
@@ -155,14 +155,14 @@ fn handle_input(
             new_end_tile.x = tc.x + 1;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start_tile = tc.clone();
-                animation.end_tile = new_end_tile;
+                animation.start = tc.clone();
+                animation.end = new_end_tile;
             } else {
                 commands.entity(e).insert(Animation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
-                    start_tile: tc.clone(),
-                    end_tile: TileCoordinate {
+                    start: tc.clone(),
+                    end: TileCoordinate {
                         x: tc.x + 1,
                         y: tc.y,
                     },

@@ -45,17 +45,17 @@ pub struct ExfilSprite;
 pub struct Animation {
     pub timer: Timer,
     pub function: EaseFunction,
-    pub start_tile: TileCoordinate,
-    pub end_tile: TileCoordinate,
+    pub start: TileCoordinate,
+    pub end: TileCoordinate,
 }
 
 impl Display for Animation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Animation: start_tile: {}, end_tile: {}, timer fraction: {}, timer remaining: {}",
-            self.start_tile,
-            self.end_tile,
+            "Animation: start: {}, end: {}, timer fraction: {}, timer remaining: {}",
+            self.start,
+            self.end,
             self.timer.fraction(),
             self.timer.remaining_secs()
         )
