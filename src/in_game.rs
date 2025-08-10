@@ -174,13 +174,14 @@ fn handle_input(
 
 fn check_for_exit(
     mut next_state: ResMut<NextState<AppState>>,
-    players: Query<&mut Transform, (With<PlayerControlled>, Without<ExfilSprite>)>,
-    exfils: Query<&mut Transform, (With<ExfilSprite>, Without<PlayerControlled>)>,
+    players: Query<&TileCoordinate, (With<PlayerControlled>, Without<ExfilSprite>)>,
+    exfils: Query<&TileCoordinate, (With<ExfilSprite>, Without<PlayerControlled>)>,
 ) {
     debug!("checking exit {}", NAME);
-    if let Ok(player_transform) = players.single() {
-        for exfil_transform in exfils.iter() {
-            if player_transform.eq(exfil_transform) {
+    if let Ok(player_coordinate) = players.single() {
+        for exfil_coordinate in exfils.iter() {
+            if player_coordinate.eq(exfil_coordinate) {
+                // TODO: smoother transition, maybe with animation on an event
                 next_state.set(MainMenu);
             }
         }

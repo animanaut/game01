@@ -26,7 +26,7 @@ impl Plugin for TilesPlugin {
 #[allow(dead_code)]
 pub struct Tile;
 
-#[derive(Component, Clone, Default)]
+#[derive(Component, PartialEq, Clone, Default)]
 pub struct TileCoordinate {
     pub x: i64,
     pub y: i64,
