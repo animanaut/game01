@@ -14,12 +14,24 @@ pub enum AppState {
     Quitting,
 }
 
+// Sub States
+#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]
+#[source(AppState = AppState::Running)]
+pub enum LevelState {
+    #[default]
+    Level01,
+}
+
 // Plugin
 pub struct AppStatesPlugin;
 
 impl Plugin for AppStatesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::Quitting), quitting);
+        app
+            // sub states
+            .add_sub_state::<LevelState>()
+            // systems
+            .add_systems(OnEnter(AppState::Quitting), quitting);
     }
 }
 

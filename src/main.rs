@@ -9,10 +9,13 @@ use splash::SplashPlugin;
 use sprites::SpritesPlugin;
 use tiles::TilesPlugin;
 
+use crate::level01::Level01Plugin;
+
 mod app_states;
 mod controls;
 mod in_game;
 mod keyboard_controller;
+mod level01;
 mod main_menu;
 mod splash;
 mod sprites;
@@ -40,6 +43,7 @@ fn main() {
             ControlsPlugin,
             KeyboardControllerPlugin,
             TilesPlugin,
+            Level01Plugin,
         ))
         .init_state::<AppState>()
         .add_systems(Startup, setup)
