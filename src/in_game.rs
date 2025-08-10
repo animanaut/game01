@@ -8,7 +8,7 @@ use bevy::prelude::*;
 use crate::{
     app_states::AppState,
     controls::{Left, PlayerControlled, Right},
-    sprites::{Animation, ExfilSprite, SPRITE_DIM, SPRITE_SCALE},
+    sprites::{ExfilSprite, MoveAnimation, SPRITE_DIM, SPRITE_SCALE},
     tiles::TileCoordinate,
 };
 
@@ -55,7 +55,7 @@ fn update_in_game() {
 
 fn logging(
     transforms: Query<
-        (Entity, &Transform, &TileCoordinate, Option<&Animation>),
+        (Entity, &Transform, &TileCoordinate, Option<&MoveAnimation>),
         With<PlayerControlled>,
     >,
 ) {
@@ -71,7 +71,7 @@ fn logging(
     }
 }
 
-fn update_transforms(mut animations: Query<(&mut Transform, &Animation)>) {
+fn update_transforms(mut animations: Query<(&mut Transform, &MoveAnimation)>) {
     debug!("handling animation {}", NAME);
 
     for (mut t, a) in animations.iter_mut() {
@@ -95,7 +95,7 @@ fn update_transforms(mut animations: Query<(&mut Transform, &Animation)>) {
 }
 
 fn update_tile_coordinates(
-    mut animation_changes: Query<(&Animation, &mut TileCoordinate), Changed<Animation>>,
+    mut animation_changes: Query<(&MoveAnimation, &mut TileCoordinate), Changed<MoveAnimation>>,
 ) {
     for (a, mut tc) in animation_changes.iter_mut() {
         // TODO: just assign end_tile? throws a cannot be dereferenced currently
@@ -112,7 +112,7 @@ fn handle_input(
             Entity,
             &Transform,
             &mut TileCoordinate,
-            Option<&mut Animation>,
+            Option<&mut MoveAnimation>,
         ),
         With<PlayerControlled>,
     >,
@@ -133,7 +133,7 @@ fn handle_input(
                 animation.start = tc.clone();
                 animation.end = new_end_tile;
             } else {
-                commands.entity(e).insert(Animation {
+                commands.entity(e).insert(MoveAnimation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
                     start: tc.clone(),
@@ -158,7 +158,7 @@ fn handle_input(
                 animation.start = tc.clone();
                 animation.end = new_end_tile;
             } else {
-                commands.entity(e).insert(Animation {
+                commands.entity(e).insert(MoveAnimation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
                     start: tc.clone(),

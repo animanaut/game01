@@ -25,10 +25,19 @@ pub struct SpritesPlugin;
 
 impl Plugin for SpritesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Running), start_sprite_atlas)
+        app
+            // events
+            .add_event::<MoveAnimationFinished>()
+            // systems
+            .add_systems(OnEnter(Running), start_sprite_atlas)
             .add_systems(
                 Update,
-                (update_sprite_atlas, update_animation_timer).run_if(in_state(Running)),
+                (
+                    update_sprite_atlas,
+                    update_animation_timer,
+                    cleanup_animations,
+                )
+                    .run_if(in_state(Running)),
             )
             .add_systems(OnExit(Running), stop_sprite_atlas);
     }
@@ -42,14 +51,14 @@ pub struct MySprite;
 pub struct ExfilSprite;
 
 #[derive(Component)]
-pub struct Animation {
+pub struct MoveAnimation {
     pub timer: Timer,
     pub function: EaseFunction,
     pub start: TileCoordinate,
     pub end: TileCoordinate,
 }
 
-impl Display for Animation {
+impl Display for MoveAnimation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -67,6 +76,8 @@ impl Display for Animation {
 struct SpritesheetTexture(Handle<Image>);
 
 // Events
+#[derive(Event)]
+pub struct MoveAnimationFinished(Entity);
 
 // Systems
 fn start_sprite_atlas(
@@ -129,17 +140,26 @@ fn update_sprite_atlas() {
 }
 
 fn update_animation_timer(
-    mut commands: Commands,
-    mut animations: Query<(Entity, &mut Animation)>,
+    mut animations: Query<(Entity, &mut MoveAnimation)>,
     time: Res<Time>,
+    mut animation_finished: EventWriter<MoveAnimationFinished>,
 ) {
     debug!("updating move animation {}", NAME);
     for (entity, mut animation) in animations.iter_mut() {
         animation.timer.tick(time.delta());
 
         if animation.timer.finished() {
-            commands.entity(entity).remove::<Animation>();
+            animation_finished.write(MoveAnimationFinished(entity));
         }
+    }
+}
+
+fn cleanup_animations(
+    mut commands: Commands,
+    mut move_animations: EventReader<MoveAnimationFinished>,
+) {
+    for move_animation in move_animations.read() {
+        commands.entity(move_animation.0).remove::<MoveAnimation>();
     }
 }
 
