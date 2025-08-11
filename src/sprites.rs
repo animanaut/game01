@@ -44,19 +44,12 @@ impl Plugin for SpritesPlugin {
         app
             // events
             .add_event::<MoveAnimationFinished>()
-            .add_event::<SpawnPlayer>()
             .add_event::<SpawnSprite>()
             // systems
             .add_systems(OnEnter(Running), setup)
             .add_systems(
                 Update,
-                (
-                    update_animation_timer,
-                    cleanup_animations,
-                    spawn_player,
-                    spawn_sprite,
-                    log_player_transforms,
-                )
+                (update_animation_timer, cleanup_animations, spawn_sprite)
                     .run_if(in_state(Running)),
             )
             .add_systems(OnExit(Running), cleanup);
@@ -103,9 +96,6 @@ pub struct SpritesheetTextureAtlasLayout(pub Handle<TextureAtlasLayout>);
 pub struct MoveAnimationFinished(Entity);
 
 #[derive(Event)]
-pub struct SpawnPlayer(pub TileCoordinate);
-
-#[derive(Event)]
 pub struct SpawnSprite {
     pub coordinate: TileCoordinate,
     pub tile: Tile,
@@ -138,38 +128,6 @@ fn cleanup(mut commands: Commands) {
     // TODO: do i need to cleanup the assets too?
     commands.remove_resource::<SpritesheetTexture>();
     commands.remove_resource::<SpritesheetTextureAtlasLayout>();
-}
-
-fn log_player_transforms(player_transforms: Query<(Entity, &Transform), With<PlayerControlled>>) {
-    for (player, transform) in player_transforms.iter() {
-        debug!("player: {}, transform: {}", player, transform.translation);
-    }
-}
-
-fn spawn_player(
-    mut commands: Commands,
-    mut spawn_coordinate: EventReader<SpawnPlayer>,
-    sprite_sheet: Res<SpritesheetTexture>,
-    sprite_sheet_texture_atlas_layout: Res<SpritesheetTextureAtlasLayout>,
-) {
-    for coordinate in spawn_coordinate.read() {
-        debug!("spawning player on coordinate: {}", coordinate.0);
-        let transform: Transform = coordinate.0.clone().into();
-        commands.spawn((
-            MySprite,
-            PlayerControlled,
-            Sprite {
-                image: sprite_sheet.0.clone(),
-                texture_atlas: Some(TextureAtlas {
-                    layout: sprite_sheet_texture_atlas_layout.0.clone(),
-                    index: Tile::Player01.index(),
-                }),
-                ..default()
-            },
-            transform,
-            coordinate.0.clone(),
-        ));
-    }
 }
 
 fn spawn_sprite(

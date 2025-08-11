@@ -8,7 +8,7 @@ use bevy::prelude::*;
 use crate::{
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
-    sprites::{ExfilSprite, MySprite, SpawnPlayer, SpawnSprite, Tile},
+    sprites::{ExfilSprite, MySprite, SpawnSprite, Tile},
     tiles::TileCoordinate,
 };
 
@@ -38,14 +38,14 @@ impl Plugin for Level01Plugin {
 // Events
 
 // Systems
-fn start_level01(
-    mut spawn_player: EventWriter<SpawnPlayer>,
-    mut spawn_sprite: EventWriter<SpawnSprite>,
-) {
+fn start_level01(mut spawn_sprite: EventWriter<SpawnSprite>) {
     debug!("starting {}", NAME);
 
-    spawn_player.write(SpawnPlayer(TileCoordinate { x: 0, y: 0 }));
-    spawn_player.write(SpawnPlayer(TileCoordinate { x: 0, y: 1 }));
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 0, y: 0 },
+        tile: Tile::Player01,
+        color: None,
+    });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 2, y: 0 },
