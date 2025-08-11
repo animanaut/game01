@@ -8,13 +8,12 @@ use bevy::prelude::*;
 use crate::{
     app_states::AppState,
     controls::{Down, Left, PlayerControlled, Right, Up},
-    sprites::{MoveAnimation, SPRITE_DIM, SPRITE_SCALE},
+    sprites::{ANIM_DURATION, MoveAnimation, SPRITE_DIM, SPRITE_SCALE},
     tiles::TileCoordinate,
 };
 
 // Constants
 const NAME: &str = "in_game";
-const ANIM_DURATION: u64 = 200;
 
 // Plugin
 pub struct InGamePlugin;
@@ -130,10 +129,9 @@ fn handle_input(
                 animation.end = end;
             } else {
                 commands.entity(e).insert(MoveAnimation {
-                    timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
-                    function: EaseFunction::CircularInOut,
                     start,
                     end,
+                    ..default()
                 });
             }
         }
@@ -152,10 +150,9 @@ fn handle_input(
                 animation.end = end;
             } else {
                 commands.entity(e).insert(MoveAnimation {
-                    timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
-                    function: EaseFunction::CircularInOut,
                     start,
                     end,
+                    ..default()
                 });
             }
         }
@@ -174,10 +171,9 @@ fn handle_input(
                 animation.end = end;
             } else {
                 commands.entity(e).insert(MoveAnimation {
-                    timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
-                    function: EaseFunction::CircularInOut,
                     start,
                     end,
+                    ..default()
                 });
             }
         }
@@ -196,10 +192,9 @@ fn handle_input(
                 animation.end = end;
             } else {
                 commands.entity(e).insert(MoveAnimation {
-                    timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
-                    function: EaseFunction::CircularInOut,
                     start,
                     end,
+                    ..default()
                 });
             }
         }

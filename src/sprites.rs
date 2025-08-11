@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, time::Duration};
 
 use bevy::app::Plugin;
 use log::debug;
@@ -19,6 +19,7 @@ const Y_TILES: u32 = 22;
 const GAP: u32 = 1;
 
 const TILE_SHEET_FILE: &str = "Tilesheet/monochrome-transparent.png";
+pub const ANIM_DURATION: u64 = 200;
 
 // Enums
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -81,6 +82,17 @@ impl Display for MoveAnimation {
             self.timer.fraction(),
             self.timer.remaining_secs()
         )
+    }
+}
+
+impl Default for MoveAnimation {
+    fn default() -> Self {
+        Self {
+            timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
+            function: EaseFunction::CircularInOut,
+            start: Default::default(),
+            end: Default::default(),
+        }
     }
 }
 
