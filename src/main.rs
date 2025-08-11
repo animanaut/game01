@@ -4,18 +4,19 @@ use bevy::prelude::*;
 use controls::ControlsPlugin;
 use in_game::InGamePlugin;
 use keyboard_controller::KeyboardControllerPlugin;
+use level01::Level01Plugin;
+use level02::Level02Plugin;
 use main_menu::MainMenuPlugin;
 use splash::SplashPlugin;
 use sprites::SpritesPlugin;
 use tiles::TilesPlugin;
-
-use crate::level01::Level01Plugin;
 
 mod app_states;
 mod controls;
 mod in_game;
 mod keyboard_controller;
 mod level01;
+mod level02;
 mod main_menu;
 mod splash;
 mod sprites;
@@ -44,8 +45,8 @@ fn main() {
             KeyboardControllerPlugin,
             TilesPlugin,
             Level01Plugin,
+            Level02Plugin,
         ))
-        .init_state::<AppState>()
         .add_systems(Startup, setup)
         .run();
 }

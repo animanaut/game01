@@ -2,13 +2,13 @@ use std::time::Duration;
 
 use bevy::app::Plugin;
 
-use AppState::{MainMenu, Running};
+use AppState::Running;
 use bevy::prelude::*;
 
 use crate::{
     app_states::AppState,
     controls::{Left, PlayerControlled, Right},
-    sprites::{ExfilSprite, MoveAnimation, SPRITE_DIM, SPRITE_SCALE},
+    sprites::{MoveAnimation, SPRITE_DIM, SPRITE_SCALE},
     tiles::TileCoordinate,
 };
 
@@ -29,7 +29,6 @@ impl Plugin for InGamePlugin {
                     handle_input,
                     update_tile_coordinates,
                     update_transforms,
-                    check_for_exit,
                     logging,
                 )
                     .run_if(in_state(Running)),
@@ -167,22 +166,6 @@ fn handle_input(
                         y: tc.y,
                     },
                 });
-            }
-        }
-    }
-}
-
-fn check_for_exit(
-    mut next_state: ResMut<NextState<AppState>>,
-    players: Query<&TileCoordinate, (With<PlayerControlled>, Without<ExfilSprite>)>,
-    exfils: Query<&TileCoordinate, (With<ExfilSprite>, Without<PlayerControlled>)>,
-) {
-    debug!("checking exit {}", NAME);
-    if let Ok(player_coordinate) = players.single() {
-        for exfil_coordinate in exfils.iter() {
-            if player_coordinate.eq(exfil_coordinate) {
-                // TODO: smoother transition, maybe with animation on an event
-                next_state.set(MainMenu);
             }
         }
     }

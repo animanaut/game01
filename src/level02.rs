@@ -1,7 +1,6 @@
 use bevy::app::Plugin;
 
-use AppState::Running;
-use LevelState::Level01;
+use AppState::{MainMenu, Running};
 use LevelState::Level02;
 use bevy::prelude::*;
 
@@ -16,21 +15,21 @@ use crate::{
 };
 
 // Constants
-const NAME: &str = "level01";
+const NAME: &str = "level02";
 
 // Plugin
-pub struct Level01Plugin;
+pub struct Level02Plugin;
 
-impl Plugin for Level01Plugin {
+impl Plugin for Level02Plugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Level01), start_level01)
+        app.add_systems(OnEnter(Level02), start_level02)
             .add_systems(
                 Update,
-                (update_level01, check_for_exit_level01)
+                (update_level01, check_for_exit_level02)
                     .run_if(in_state(Running))
-                    .run_if(in_state(Level01)),
+                    .run_if(in_state(Level02)),
             )
-            .add_systems(OnExit(Level01), stop_level01);
+            .add_systems(OnExit(Level02), stop_level02);
     }
 }
 
@@ -41,7 +40,7 @@ impl Plugin for Level01Plugin {
 // Events
 
 // Systems
-fn start_level01(
+fn start_level02(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
@@ -100,8 +99,8 @@ fn update_level01() {
     debug!("updating {}", NAME);
 }
 
-fn check_for_exit_level01(
-    mut next_state: ResMut<NextState<LevelState>>,
+fn check_for_exit_level02(
+    mut next_state: ResMut<NextState<AppState>>,
     players: Query<&TileCoordinate, (With<PlayerControlled>, Without<ExfilSprite>)>,
     exfils: Query<&TileCoordinate, (With<ExfilSprite>, Without<PlayerControlled>)>,
 ) {
@@ -110,14 +109,13 @@ fn check_for_exit_level01(
         for exfil_coordinate in exfils.iter() {
             if player_coordinate.eq(exfil_coordinate) {
                 // TODO: smoother transition, maybe with animation on an event
-                debug!("changing LevelState to {:?}", Level02);
-                next_state.set(Level02);
+                next_state.set(MainMenu);
             }
         }
     }
 }
 
-fn stop_level01(mut commands: Commands, sprites: Query<Entity, With<MySprite>>) {
+fn stop_level02(mut commands: Commands, sprites: Query<Entity, With<MySprite>>) {
     debug!("stopping {}", NAME);
     commands.remove_resource::<SpritesheetTexture>();
     for sprite in sprites.iter() {

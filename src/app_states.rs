@@ -20,6 +20,7 @@ pub enum AppState {
 pub enum LevelState {
     #[default]
     Level01,
+    Level02,
 }
 
 // Plugin
@@ -28,6 +29,8 @@ pub struct AppStatesPlugin;
 impl Plugin for AppStatesPlugin {
     fn build(&self, app: &mut App) {
         app
+            // states
+            .init_state::<AppState>()
             // sub states
             .add_sub_state::<LevelState>()
             // systems
