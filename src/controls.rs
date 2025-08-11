@@ -17,6 +17,8 @@ impl Plugin for ControlsPlugin {
             // Events
             .add_event::<Right>()
             .add_event::<Left>()
+            .add_event::<Up>()
+            .add_event::<Down>()
             // Systems
             .add_systems(OnEnter(Running), start_controls)
             .add_systems(Update, (update_controls).run_if(in_state(Running)))
@@ -37,12 +39,23 @@ pub struct Right;
 #[derive(Event)]
 pub struct Left;
 
+#[derive(Event)]
+pub struct Up;
+
+#[derive(Event)]
+pub struct Down;
+
 // Systems
 fn start_controls(mut _commands: Commands) {
     debug!("starting {}", NAME);
 }
 
-fn update_controls(mut right: EventReader<Right>, mut left: EventReader<Left>) {
+fn update_controls(
+    mut right: EventReader<Right>,
+    mut left: EventReader<Left>,
+    mut up: EventReader<Up>,
+    mut down: EventReader<Down>,
+) {
     debug!("updating {}", NAME);
 
     for _ in left.read() {
@@ -51,6 +64,14 @@ fn update_controls(mut right: EventReader<Right>, mut left: EventReader<Left>) {
 
     for _ in right.read() {
         debug!("received right event");
+    }
+
+    for _ in up.read() {
+        debug!("received up event");
+    }
+
+    for _ in down.read() {
+        debug!("received down event");
     }
 }
 

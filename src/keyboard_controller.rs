@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 use crate::{
     app_states::AppState,
-    controls::{Left, Right},
+    controls::{Down, Left, Right, Up},
 };
 
 // Constants
@@ -37,6 +37,8 @@ fn update_keyboard_controls(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut left: EventWriter<Left>,
     mut right: EventWriter<Right>,
+    mut up: EventWriter<Up>,
+    mut down: EventWriter<Down>,
 ) {
     debug!("updating {}", NAME);
 
@@ -48,6 +50,16 @@ fn update_keyboard_controls(
     if keyboard_input.just_pressed(KeyCode::KeyD) {
         debug!("sending right event");
         right.write(Right);
+    }
+
+    if keyboard_input.just_pressed(KeyCode::KeyW) {
+        debug!("sending up event");
+        up.write(Up);
+    }
+
+    if keyboard_input.just_pressed(KeyCode::KeyS) {
+        debug!("sending down event");
+        down.write(Down);
     }
 }
 

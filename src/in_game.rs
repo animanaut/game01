@@ -7,7 +7,7 @@ use bevy::prelude::*;
 
 use crate::{
     app_states::AppState,
-    controls::{Left, PlayerControlled, Right},
+    controls::{Down, Left, PlayerControlled, Right, Up},
     sprites::{MoveAnimation, SPRITE_DIM, SPRITE_SCALE},
     tiles::TileCoordinate,
 };
@@ -107,39 +107,33 @@ fn update_tile_coordinates(
 fn handle_input(
     mut commands: Commands,
     mut players: Query<
-        (
-            Entity,
-            &Transform,
-            &mut TileCoordinate,
-            Option<&mut MoveAnimation>,
-        ),
+        (Entity, &mut TileCoordinate, Option<&mut MoveAnimation>),
         With<PlayerControlled>,
     >,
     mut left: EventReader<Left>,
     mut right: EventReader<Right>,
+    mut up: EventReader<Up>,
+    mut down: EventReader<Down>,
 ) {
     debug!("handle input {}", NAME);
 
     for _ in left.read() {
         debug!("handle left input");
 
-        for (e, t, tc, a) in players.iter_mut() {
-            debug!("initial t of animation: {}", t.translation);
-            let mut new_end_tile = tc.clone();
-            new_end_tile.x = tc.x - 1;
+        for (e, tc, a) in players.iter_mut() {
+            let start = tc.clone();
+            let mut end = tc.clone();
+            end.x = tc.x - 1;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = tc.clone();
-                animation.end = new_end_tile;
+                animation.start = start;
+                animation.end = end;
             } else {
                 commands.entity(e).insert(MoveAnimation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
-                    start: tc.clone(),
-                    end: TileCoordinate {
-                        x: tc.x - 1,
-                        y: tc.y,
-                    },
+                    start,
+                    end,
                 });
             }
         }
@@ -148,23 +142,64 @@ fn handle_input(
     for _ in right.read() {
         debug!("handle right input");
 
-        for (e, t, tc, a) in players.iter_mut() {
-            debug!("initial t of animation: {}", t.translation);
-            let mut new_end_tile = tc.clone();
-            new_end_tile.x = tc.x + 1;
+        for (e, tc, a) in players.iter_mut() {
+            let start = tc.clone();
+            let mut end = tc.clone();
+            end.x = tc.x + 1;
             if let Some(mut animation) = a {
                 animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = tc.clone();
-                animation.end = new_end_tile;
+                animation.start = start;
+                animation.end = end;
             } else {
                 commands.entity(e).insert(MoveAnimation {
                     timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
                     function: EaseFunction::CircularInOut,
-                    start: tc.clone(),
-                    end: TileCoordinate {
-                        x: tc.x + 1,
-                        y: tc.y,
-                    },
+                    start,
+                    end,
+                });
+            }
+        }
+    }
+
+    for _ in up.read() {
+        debug!("handle up input");
+
+        for (e, tc, a) in players.iter_mut() {
+            let start = tc.clone();
+            let mut end = tc.clone();
+            end.y = tc.y + 1;
+            if let Some(mut animation) = a {
+                animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
+                animation.start = start;
+                animation.end = end;
+            } else {
+                commands.entity(e).insert(MoveAnimation {
+                    timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
+                    function: EaseFunction::CircularInOut,
+                    start,
+                    end,
+                });
+            }
+        }
+    }
+
+    for _ in down.read() {
+        debug!("handle up input");
+
+        for (e, tc, a) in players.iter_mut() {
+            let start = tc.clone();
+            let mut end = tc.clone();
+            end.y = tc.y - 1;
+            if let Some(mut animation) = a {
+                animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
+                animation.start = start;
+                animation.end = end;
+            } else {
+                commands.entity(e).insert(MoveAnimation {
+                    timer: Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once),
+                    function: EaseFunction::CircularInOut,
+                    start,
+                    end,
                 });
             }
         }
