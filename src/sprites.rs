@@ -1,8 +1,9 @@
 use std::fmt::Display;
 
 use bevy::app::Plugin;
+use log::debug;
 
-use crate::AppState::Running;
+use crate::{AppState::Running, controls::PlayerControlled};
 use bevy::prelude::*;
 
 use crate::tiles::TileCoordinate;
@@ -17,8 +18,25 @@ pub const X_TILES: u32 = 49;
 pub const Y_TILES: u32 = 22;
 pub const GAP: u32 = 1;
 
-pub const HERO: usize = 9_usize * X_TILES as usize + 30_usize;
 pub const OPEN_DOOR_1: usize = 9_usize * X_TILES as usize + 2_usize;
+
+const TILE_SHEET_FILE: &str = "Tilesheet/monochrome-transparent.png";
+
+// Enums
+#[allow(dead_code)]
+pub enum Tile {
+    Player01,
+    LevelExit01,
+}
+
+impl Tile {
+    fn index(&self) -> usize {
+        match self {
+            Tile::Player01 => 9_usize * X_TILES as usize + 30_usize,
+            Tile::LevelExit01 => 9_usize * X_TILES as usize + 2_usize,
+        }
+    }
+}
 
 // Plugin
 pub struct SpritesPlugin;
@@ -28,11 +46,15 @@ impl Plugin for SpritesPlugin {
         app
             // events
             .add_event::<MoveAnimationFinished>()
+            .add_event::<SpawnPlayer>()
             // systems
+            .add_systems(OnEnter(Running), setup)
             .add_systems(
                 Update,
-                (update_animation_timer, cleanup_animations).run_if(in_state(Running)),
-            );
+                (update_animation_timer, cleanup_animations, spawn_player)
+                    .run_if(in_state(Running)),
+            )
+            .add_systems(OnExit(Running), cleanup);
     }
 }
 
@@ -68,11 +90,74 @@ impl Display for MoveAnimation {
 #[derive(Resource, Clone)]
 pub struct SpritesheetTexture(pub Handle<Image>);
 
+#[derive(Resource, Clone)]
+pub struct SpritesheetTextureAtlasLayout(pub Handle<TextureAtlasLayout>);
+
 // Events
 #[derive(Event)]
 pub struct MoveAnimationFinished(Entity);
 
+#[derive(Event)]
+pub struct SpawnPlayer(pub TileCoordinate);
+
 // Systems
+fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    debug!("starting {}", NAME);
+
+    let layout = TextureAtlasLayout::from_grid(
+        UVec2::splat(SPRITE_DIM),
+        X_TILES,
+        Y_TILES,
+        Some(UVec2::splat(GAP)),
+        None,
+    );
+    commands.insert_resource(SpritesheetTextureAtlasLayout(
+        texture_atlas_layouts.add(layout),
+    ));
+    commands.insert_resource(SpritesheetTexture(asset_server.load(TILE_SHEET_FILE)));
+}
+
+fn cleanup(mut commands: Commands) {
+    // TODO: do i need to cleanup the assets too?
+    commands.remove_resource::<SpritesheetTexture>();
+    commands.remove_resource::<SpritesheetTextureAtlasLayout>();
+}
+
+fn spawn_player(
+    mut commands: Commands,
+    mut spawn_coordinate: EventReader<SpawnPlayer>,
+    _asset_server: Res<AssetServer>,
+    _texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    sprite_sheet: Res<SpritesheetTexture>,
+    sprite_sheet_texture_atlas_layout: Res<SpritesheetTextureAtlasLayout>,
+) {
+    // TODO: maybe put in a check if player is already present and replace it(query + commands needed)
+    for coordinate in spawn_coordinate.read() {
+        debug!("spawning player on coordinate: {}", coordinate.0);
+        commands.spawn((
+            MySprite,
+            PlayerControlled,
+            Sprite {
+                image: sprite_sheet.0.clone(),
+                texture_atlas: Some(TextureAtlas {
+                    layout: sprite_sheet_texture_atlas_layout.0.clone(),
+                    index: Tile::Player01.index(),
+                }),
+                ..default()
+            },
+            // TODO: calc custom non zero positions
+            // TODO: from/into TileCoordinate / Vec3
+            Transform::from_scale(Vec3::splat(SPRITE_SCALE))
+                .with_translation(Vec3::new(0.0, 0.0, 0.0)),
+            coordinate.0.clone(),
+        ));
+    }
+}
+
 fn update_animation_timer(
     mut animations: Query<(Entity, &mut MoveAnimation)>,
     time: Res<Time>,

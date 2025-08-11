@@ -8,7 +8,7 @@ use crate::{
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
     sprites::{
-        ExfilSprite, GAP, HERO, MySprite, OPEN_DOOR_1, SPRITE_DIM, SPRITE_SCALE,
+        ExfilSprite, GAP, MySprite, OPEN_DOOR_1, SPRITE_DIM, SPRITE_SCALE, SpawnPlayer,
         SpritesheetTexture, X_TILES, Y_TILES,
     },
     tiles::TileCoordinate,
@@ -44,6 +44,7 @@ fn start_level02(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    mut spawn_player: EventWriter<SpawnPlayer>,
 ) {
     debug!("starting {}", NAME);
     let sprite_sheet_texture =
@@ -59,20 +60,7 @@ fn start_level02(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     commands.insert_resource(sprite_sheet_texture.clone());
 
-    commands.spawn((
-        MySprite,
-        PlayerControlled,
-        Sprite {
-            image: sprite_sheet_texture.0.clone(),
-            texture_atlas: Some(TextureAtlas {
-                layout: texture_atlas_layout.clone(),
-                index: HERO,
-            }),
-            ..default()
-        },
-        Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(Vec3::new(0.0, 0.0, 0.0)),
-        TileCoordinate { x: 0, y: 0 },
-    ));
+    spawn_player.write(SpawnPlayer(TileCoordinate { x: 0, y: 0 }));
 
     commands.spawn((
         MySprite,
