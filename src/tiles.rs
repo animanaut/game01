@@ -31,13 +31,25 @@ pub struct Tile;
 
 #[derive(Component, PartialEq, Clone, Default)]
 pub struct TileCoordinate {
-    pub x: i64,
-    pub y: i64,
+    pub x: i32,
+    pub y: i32,
+    /// will be used for z depth
+    pub z: i32,
+}
+
+impl TileCoordinate {
+    pub fn eq2d(&self, other: &TileCoordinate) -> bool {
+        self.x.eq(&other.x) && self.y.eq(&other.y)
+    }
 }
 
 impl Display for TileCoordinate {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "TileCoordinate: x: {}, y: {}", self.x, self.y)
+        write!(
+            f,
+            "TileCoordinate: x: {}, y: {}, z: {}",
+            self.x, self.y, self.z
+        )
     }
 }
 
@@ -46,7 +58,7 @@ impl From<TileCoordinate> for Vec3 {
         Vec3 {
             x: SPRITE_SCALE * SPRITE_DIM as f32 * val.x as f32,
             y: SPRITE_SCALE * SPRITE_DIM as f32 * val.y as f32,
-            z: 0 as f32,
+            z: val.z as f32,
         }
     }
 }
@@ -91,7 +103,7 @@ mod tests {
     fn should_convert_tile_coordinate_into_vec3() {
         // given
         let default_tile = TileCoordinate::default();
-        let tile = TileCoordinate { x: 2, y: 3 };
+        let tile = TileCoordinate { x: 2, y: 3, z: 0 };
 
         // when
         let default_vec3: Vec3 = Vec3::default();

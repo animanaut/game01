@@ -42,31 +42,31 @@ fn start_level01(mut spawn_sprite: EventWriter<SpawnSprite>) {
     debug!("starting {}", NAME);
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 0, y: 0 },
+        coordinate: TileCoordinate { x: 0, y: 0, z: 0 },
         tile: Tile::Player01,
         color: None,
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 2, y: 0 },
+        coordinate: TileCoordinate { x: 2, y: 0, z: -1 },
         tile: Tile::LevelExit01,
         color: None,
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 2, y: 1 },
+        coordinate: TileCoordinate { x: 2, y: 1, z: -1 },
         tile: Tile::Grass,
         color: None,
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 1, y: 1 },
+        coordinate: TileCoordinate { x: 1, y: 1, z: -1 },
         tile: Tile::GrassFlowers,
         color: None,
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 0, y: 1 },
+        coordinate: TileCoordinate { x: 0, y: 1, z: -1 },
         tile: Tile::LongGrass,
         color: None,
     });
@@ -84,7 +84,7 @@ fn check_for_exit_level01(
     debug!("checking exit {}", NAME);
     for player_coordinate in players.iter() {
         for exfil_coordinate in exfils.iter() {
-            if player_coordinate.eq(exfil_coordinate) {
+            if player_coordinate.eq2d(exfil_coordinate) {
                 // TODO: smoother transition, maybe with animation on an event
                 debug!("changing LevelState to {:?}", Level02);
                 next_state.set(Level02);

@@ -41,13 +41,13 @@ fn start_level02(mut spawn_sprite: EventWriter<SpawnSprite>) {
     debug!("starting {}", NAME);
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 0, y: 0 },
+        coordinate: TileCoordinate { x: 0, y: 0, z: 0 },
         tile: Tile::Player01,
         color: Some(Color::linear_rgb(0.5, 0.5, 0.5)),
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 1, y: 0 },
+        coordinate: TileCoordinate { x: 1, y: 0, z: 1 },
         tile: Tile::LevelExit01,
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
     });
@@ -65,7 +65,7 @@ fn check_for_exit_level02(
     debug!("checking exit {}", NAME);
     for player_coordinate in players.iter() {
         for exfil_coordinate in exfils.iter() {
-            if player_coordinate.eq(exfil_coordinate) {
+            if player_coordinate.eq2d(exfil_coordinate) {
                 // TODO: smoother transition, maybe with animation on an event
                 next_state.set(MainMenu);
             }
