@@ -38,6 +38,16 @@ impl Display for TileCoordinate {
     }
 }
 
+impl Into<Vec3> for TileCoordinate {
+    fn into(self) -> Vec3 {
+        Vec3 {
+            x: self.x as f32,
+            y: self.y as f32,
+            z: 0 as f32,
+        }
+    }
+}
+
 // Resources
 
 // Events
@@ -64,24 +74,20 @@ fn stop_tiles(mut _commands: Commands) {
 #[cfg(test)]
 mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
-    //use super::*;
+    use super::*;
 
-    /*
     #[test]
-    fn should_test_something() {
+    fn should_convert_tile_coordinate_into_vec3() {
         // given
-        //let mut _app = App::new();
+        let default_tile = TileCoordinate::default();
+        let tile = TileCoordinate { x: 2, y: 3 };
 
         // when
-        //app.add_event::<HealthDamageReceived>();
-        //app.add_systems(Update, damage_received_listener);
-        //let entity = app.borrow_mut().world.spawn(Health(100)).id();
-        //app.borrow_mut().world.resource_mut::<Events<HealthDamageReceived>>().send(HealthDamageReceived { entity, damage: 10 });
-        //app.update();
+        let default_vec3: Vec3 = Vec3::default();
+        let vec3: Vec3 = tile.into();
 
         // then
-        //assert!(app.world.get::<Health>(entity).is_some());
-        //assert_eq!(app.world.get::<Health>(entity).unwrap().0, 90);
+        assert_eq!(default_vec3, default_tile.into());
+        assert_eq!(Vec3::new(2.0, 3.0, 0.0), vec3);
     }
-    */
 }
