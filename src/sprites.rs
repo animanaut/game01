@@ -35,6 +35,13 @@ impl Tile {
             Tile::LevelExit01 => 9_usize * X_TILES as usize + 2_usize,
         }
     }
+
+    fn color(&self) -> Color {
+        match self {
+            Tile::LevelExit01 => Color::linear_rgb(0.0, 1.0, 1.0),
+            _ => Color::default(),
+        }
+    }
 }
 
 // Plugin
@@ -115,6 +122,12 @@ pub struct SpawnSprite {
     pub color: Option<Color>,
 }
 
+impl SpawnSprite {
+    fn color(&self) -> Color {
+        self.color.unwrap_or(self.tile.color())
+    }
+}
+
 // Systems
 fn setup(
     mut commands: Commands,
@@ -154,12 +167,6 @@ fn spawn_sprite(
             spawn_sprite.tile, spawn_sprite.coordinate
         );
 
-        // customization defaults
-        let default_color = match spawn_sprite.tile {
-            Tile::LevelExit01 => Color::linear_rgb(0.0, 1.0, 1.0),
-            _ => Color::default(),
-        };
-
         // sprite
         let transform: Transform = spawn_sprite.coordinate.clone().into();
         let new_sprite = commands
@@ -167,7 +174,7 @@ fn spawn_sprite(
                 MySprite,
                 Sprite {
                     image: sprite_sheet.0.clone(),
-                    color: spawn_sprite.color.unwrap_or(default_color),
+                    color: spawn_sprite.color(),
                     texture_atlas: Some(TextureAtlas {
                         layout: sprite_sheet_texture_atlas_layout.0.clone(),
                         index: spawn_sprite.tile.index(),
