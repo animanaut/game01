@@ -26,19 +26,32 @@ pub const ANIM_DURATION: u64 = 200;
 pub enum Tile {
     Player01,
     LevelExit01,
+    Grass,
+    GrassFlowers,
+    LongGrass,
 }
 
 impl Tile {
     fn index(&self) -> usize {
         match self {
-            Tile::Player01 => 9_usize * X_TILES as usize + 30_usize,
-            Tile::LevelExit01 => 9_usize * X_TILES as usize + 2_usize,
+            Tile::Player01 => Tile::get_index(30, 9),
+            Tile::LevelExit01 => Tile::get_index(2, 9),
+            Tile::Grass => Tile::get_index(5, 0),
+            Tile::GrassFlowers => Tile::get_index(6, 0),
+            Tile::LongGrass => Tile::get_index(7, 0),
         }
+    }
+
+    fn get_index(x: usize, y: usize) -> usize {
+        y * X_TILES as usize + x
     }
 
     fn color(&self) -> Color {
         match self {
             Tile::LevelExit01 => Color::linear_rgb(0.0, 1.0, 1.0),
+            Tile::Grass => Color::linear_rgb(0.0, 1.0, 0.0),
+            Tile::GrassFlowers => Color::linear_rgb(0.2, 1.0, 0.2),
+            Tile::LongGrass => Color::linear_rgb(0.0, 8.0, 0.0),
             _ => Color::default(),
         }
     }
@@ -194,6 +207,7 @@ fn spawn_sprite(
             Tile::Player01 => {
                 commands.entity(new_sprite).insert(PlayerControlled);
             }
+            _ => (),
         }
     }
 }
