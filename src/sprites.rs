@@ -51,7 +51,12 @@ impl Plugin for SpritesPlugin {
             .add_systems(OnEnter(Running), setup)
             .add_systems(
                 Update,
-                (update_animation_timer, cleanup_animations, spawn_player)
+                (
+                    update_animation_timer,
+                    cleanup_animations,
+                    spawn_player,
+                    log_player_transforms,
+                )
                     .run_if(in_state(Running)),
             )
             .add_systems(OnExit(Running), cleanup);
@@ -127,11 +132,15 @@ fn cleanup(mut commands: Commands) {
     commands.remove_resource::<SpritesheetTextureAtlasLayout>();
 }
 
+fn log_player_transforms(player_transforms: Query<(Entity, &Transform), With<PlayerControlled>>) {
+    for (player, transform) in player_transforms.iter() {
+        debug!("player: {}, transform: {}", player, transform.translation);
+    }
+}
+
 fn spawn_player(
     mut commands: Commands,
     mut spawn_coordinate: EventReader<SpawnPlayer>,
-    _asset_server: Res<AssetServer>,
-    _texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     sprite_sheet: Res<SpritesheetTexture>,
     sprite_sheet_texture_atlas_layout: Res<SpritesheetTextureAtlasLayout>,
 ) {
@@ -149,10 +158,8 @@ fn spawn_player(
                 }),
                 ..default()
             },
-            // TODO: calc custom non zero positions
-            // TODO: from/into TileCoordinate / Vec3
             Transform::from_scale(Vec3::splat(SPRITE_SCALE))
-                .with_translation(Vec3::new(0.0, 0.0, 0.0)),
+                .with_translation(coordinate.0.clone().into()),
             coordinate.0.clone(),
         ));
     }

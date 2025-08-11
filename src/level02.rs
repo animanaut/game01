@@ -61,6 +61,7 @@ fn start_level02(
     commands.insert_resource(sprite_sheet_texture.clone());
 
     spawn_player.write(SpawnPlayer(TileCoordinate { x: 0, y: 0 }));
+    spawn_player.write(SpawnPlayer(TileCoordinate { x: 0, y: -2 }));
 
     commands.spawn((
         MySprite,
@@ -93,7 +94,7 @@ fn check_for_exit_level02(
     exfils: Query<&TileCoordinate, (With<ExfilSprite>, Without<PlayerControlled>)>,
 ) {
     debug!("checking exit {}", NAME);
-    if let Ok(player_coordinate) = players.single() {
+    for player_coordinate in players.iter() {
         for exfil_coordinate in exfils.iter() {
             if player_coordinate.eq(exfil_coordinate) {
                 // TODO: smoother transition, maybe with animation on an event

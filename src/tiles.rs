@@ -5,7 +5,10 @@ use bevy::app::Plugin;
 use AppState::Running;
 use bevy::prelude::*;
 
-use crate::app_states::AppState;
+use crate::{
+    app_states::AppState,
+    sprites::{SPRITE_DIM, SPRITE_SCALE},
+};
 
 // Constants
 const NAME: &str = "tiles";
@@ -41,8 +44,8 @@ impl Display for TileCoordinate {
 impl Into<Vec3> for TileCoordinate {
     fn into(self) -> Vec3 {
         Vec3 {
-            x: self.x as f32,
-            y: self.y as f32,
+            x: SPRITE_SCALE as f32 * SPRITE_DIM as f32 * self.x as f32,
+            y: SPRITE_SCALE as f32 * SPRITE_DIM as f32 * self.y as f32,
             z: 0 as f32,
         }
     }
@@ -73,6 +76,8 @@ fn stop_tiles(mut _commands: Commands) {
 // tests
 #[cfg(test)]
 mod tests {
+    use crate::sprites::SPRITE_SCALE;
+
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
@@ -88,6 +93,13 @@ mod tests {
 
         // then
         assert_eq!(default_vec3, default_tile.into());
-        assert_eq!(Vec3::new(2.0, 3.0, 0.0), vec3);
+        assert_eq!(
+            Vec3::new(
+                2.0 * SPRITE_DIM as f32 * SPRITE_SCALE as f32,
+                3.0 * SPRITE_DIM as f32 * SPRITE_SCALE as f32,
+                0.0
+            ),
+            vec3
+        );
     }
 }
