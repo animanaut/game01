@@ -24,6 +24,7 @@ const TILE_SHEET_FILE: &str = "Tilesheet/monochrome-transparent.png";
 
 // Enums
 #[allow(dead_code)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum Tile {
     Player01,
     LevelExit01,
@@ -47,6 +48,7 @@ impl Plugin for SpritesPlugin {
             // events
             .add_event::<MoveAnimationFinished>()
             .add_event::<SpawnPlayer>()
+            .add_event::<SpawnSprite>()
             // systems
             .add_systems(OnEnter(Running), setup)
             .add_systems(
@@ -55,6 +57,7 @@ impl Plugin for SpritesPlugin {
                     update_animation_timer,
                     cleanup_animations,
                     spawn_player,
+                    spawn_sprite,
                     log_player_transforms,
                 )
                     .run_if(in_state(Running)),
@@ -105,6 +108,12 @@ pub struct MoveAnimationFinished(Entity);
 #[derive(Event)]
 pub struct SpawnPlayer(pub TileCoordinate);
 
+#[derive(Event)]
+pub struct SpawnSprite {
+    pub coordinate: TileCoordinate,
+    pub tile: Tile,
+}
+
 // Systems
 fn setup(
     mut commands: Commands,
@@ -144,9 +153,9 @@ fn spawn_player(
     sprite_sheet: Res<SpritesheetTexture>,
     sprite_sheet_texture_atlas_layout: Res<SpritesheetTextureAtlasLayout>,
 ) {
-    // TODO: maybe put in a check if player is already present and replace it(query + commands needed)
     for coordinate in spawn_coordinate.read() {
         debug!("spawning player on coordinate: {}", coordinate.0);
+        let transform: Transform = coordinate.0.clone().into();
         commands.spawn((
             MySprite,
             PlayerControlled,
@@ -158,10 +167,49 @@ fn spawn_player(
                 }),
                 ..default()
             },
-            Transform::from_scale(Vec3::splat(SPRITE_SCALE))
-                .with_translation(coordinate.0.clone().into()),
+            transform,
             coordinate.0.clone(),
         ));
+    }
+}
+
+fn spawn_sprite(
+    mut commands: Commands,
+    mut spawn_coordinate: EventReader<SpawnSprite>,
+    sprite_sheet: Res<SpritesheetTexture>,
+    sprite_sheet_texture_atlas_layout: Res<SpritesheetTextureAtlasLayout>,
+) {
+    for spawn_sprite in spawn_coordinate.read() {
+        debug!(
+            "spawning sprite {:?} on coordinate: {}",
+            spawn_sprite.tile, spawn_sprite.coordinate
+        );
+        let transform: Transform = spawn_sprite.coordinate.clone().into();
+        let new_sprite = commands
+            .spawn((
+                MySprite,
+                Sprite {
+                    image: sprite_sheet.0.clone(),
+                    texture_atlas: Some(TextureAtlas {
+                        layout: sprite_sheet_texture_atlas_layout.0.clone(),
+                        index: spawn_sprite.tile.index(),
+                    }),
+                    ..default()
+                },
+                transform,
+                spawn_sprite.coordinate.clone(),
+            ))
+            .id();
+        // customize sprites
+        // TODO: for now just put custom marker components on fixed tile types
+        match spawn_sprite.tile {
+            Tile::LevelExit01 => {
+                commands.entity(new_sprite).insert(ExfilSprite);
+            }
+            Tile::Player01 => {
+                commands.entity(new_sprite).insert(PlayerControlled);
+            }
+        }
     }
 }
 

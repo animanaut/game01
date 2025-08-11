@@ -6,6 +6,8 @@ use LevelState::Level02;
 use bevy::prelude::*;
 
 use crate::sprites::SpawnPlayer;
+use crate::sprites::SpawnSprite;
+use crate::sprites::Tile;
 use crate::{
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
@@ -47,6 +49,7 @@ fn start_level01(
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut spawn_player: EventWriter<SpawnPlayer>,
+    mut spawn_sprite: EventWriter<SpawnSprite>,
 ) {
     debug!("starting {}", NAME);
     let sprite_sheet_texture =
@@ -64,6 +67,11 @@ fn start_level01(
 
     spawn_player.write(SpawnPlayer(TileCoordinate { x: 0, y: 0 }));
     spawn_player.write(SpawnPlayer(TileCoordinate { x: 0, y: 1 }));
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 3, y: 0 },
+        tile: Tile::LevelExit01,
+    });
 
     commands.spawn((
         MySprite,

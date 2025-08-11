@@ -51,6 +51,12 @@ impl Into<Vec3> for TileCoordinate {
     }
 }
 
+impl Into<Transform> for TileCoordinate {
+    fn into(self) -> Transform {
+        Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(self.clone().into())
+    }
+}
+
 // Resources
 
 // Events
