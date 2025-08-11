@@ -41,19 +41,19 @@ impl Display for TileCoordinate {
     }
 }
 
-impl Into<Vec3> for TileCoordinate {
-    fn into(self) -> Vec3 {
+impl From<TileCoordinate> for Vec3 {
+    fn from(val: TileCoordinate) -> Self {
         Vec3 {
-            x: SPRITE_SCALE as f32 * SPRITE_DIM as f32 * self.x as f32,
-            y: SPRITE_SCALE as f32 * SPRITE_DIM as f32 * self.y as f32,
+            x: SPRITE_SCALE * SPRITE_DIM as f32 * val.x as f32,
+            y: SPRITE_SCALE * SPRITE_DIM as f32 * val.y as f32,
             z: 0 as f32,
         }
     }
 }
 
-impl Into<Transform> for TileCoordinate {
-    fn into(self) -> Transform {
-        Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(self.clone().into())
+impl From<TileCoordinate> for Transform {
+    fn from(val: TileCoordinate) -> Self {
+        Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(val.clone().into())
     }
 }
 
@@ -101,8 +101,8 @@ mod tests {
         assert_eq!(default_vec3, default_tile.into());
         assert_eq!(
             Vec3::new(
-                2.0 * SPRITE_DIM as f32 * SPRITE_SCALE as f32,
-                3.0 * SPRITE_DIM as f32 * SPRITE_SCALE as f32,
+                2.0 * SPRITE_DIM as f32 * SPRITE_SCALE,
+                3.0 * SPRITE_DIM as f32 * SPRITE_SCALE,
                 0.0
             ),
             vec3
