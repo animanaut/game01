@@ -14,16 +14,13 @@ const NAME: &str = "sprites";
 pub const SPRITE_DIM: u32 = 16;
 pub const SPRITE_SCALE: f32 = 6.0;
 
-pub const X_TILES: u32 = 49;
-pub const Y_TILES: u32 = 22;
-pub const GAP: u32 = 1;
-
-pub const OPEN_DOOR_1: usize = 9_usize * X_TILES as usize + 2_usize;
+const X_TILES: u32 = 49;
+const Y_TILES: u32 = 22;
+const GAP: u32 = 1;
 
 const TILE_SHEET_FILE: &str = "Tilesheet/monochrome-transparent.png";
 
 // Enums
-#[allow(dead_code)]
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum Tile {
     Player01,
@@ -112,6 +109,8 @@ pub struct SpawnPlayer(pub TileCoordinate);
 pub struct SpawnSprite {
     pub coordinate: TileCoordinate,
     pub tile: Tile,
+    /// custom color, will override defaults
+    pub color: Option<Color>,
 }
 
 // Systems
@@ -184,12 +183,21 @@ fn spawn_sprite(
             "spawning sprite {:?} on coordinate: {}",
             spawn_sprite.tile, spawn_sprite.coordinate
         );
+
+        // customization defaults
+        let default_color = match spawn_sprite.tile {
+            Tile::LevelExit01 => Color::linear_rgb(0.0, 1.0, 1.0),
+            _ => Color::default(),
+        };
+
+        // sprite
         let transform: Transform = spawn_sprite.coordinate.clone().into();
         let new_sprite = commands
             .spawn((
                 MySprite,
                 Sprite {
                     image: sprite_sheet.0.clone(),
+                    color: spawn_sprite.color.unwrap_or(default_color),
                     texture_atlas: Some(TextureAtlas {
                         layout: sprite_sheet_texture_atlas_layout.0.clone(),
                         index: spawn_sprite.tile.index(),
@@ -200,8 +208,8 @@ fn spawn_sprite(
                 spawn_sprite.coordinate.clone(),
             ))
             .id();
-        // customize sprites
-        // TODO: for now just put custom marker components on fixed tile types
+
+        // custom marker components
         match spawn_sprite.tile {
             Tile::LevelExit01 => {
                 commands.entity(new_sprite).insert(ExfilSprite);

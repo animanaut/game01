@@ -7,10 +7,7 @@ use bevy::prelude::*;
 use crate::{
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
-    sprites::{
-        ExfilSprite, GAP, MySprite, OPEN_DOOR_1, SPRITE_DIM, SPRITE_SCALE, SpawnPlayer,
-        SpritesheetTexture, X_TILES, Y_TILES,
-    },
+    sprites::{ExfilSprite, MySprite, SpawnPlayer, SpawnSprite, Tile},
     tiles::TileCoordinate,
 };
 
@@ -41,47 +38,19 @@ impl Plugin for Level02Plugin {
 
 // Systems
 fn start_level02(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut spawn_player: EventWriter<SpawnPlayer>,
+    mut spawn_sprite: EventWriter<SpawnSprite>,
 ) {
     debug!("starting {}", NAME);
-    let sprite_sheet_texture =
-        SpritesheetTexture(asset_server.load("Tilesheet/monochrome-transparent.png"));
-
-    let layout = TextureAtlasLayout::from_grid(
-        UVec2::splat(SPRITE_DIM),
-        X_TILES,
-        Y_TILES,
-        Some(UVec2::splat(GAP)),
-        None,
-    );
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    commands.insert_resource(sprite_sheet_texture.clone());
 
     spawn_player.write(SpawnPlayer(TileCoordinate { x: 0, y: 0 }));
     spawn_player.write(SpawnPlayer(TileCoordinate { x: 0, y: -2 }));
 
-    commands.spawn((
-        MySprite,
-        ExfilSprite,
-        Sprite {
-            image: sprite_sheet_texture.0.clone(),
-            color: Color::linear_rgb(0.0, 1.0, 1.0),
-            texture_atlas: Some(TextureAtlas {
-                layout: texture_atlas_layout.clone(),
-                index: OPEN_DOOR_1,
-            }),
-            ..default()
-        },
-        Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(Vec3::new(
-            SPRITE_SCALE * 2.0 * SPRITE_DIM as f32,
-            0.0,
-            0.0,
-        )),
-        TileCoordinate { x: 2, y: 0 },
-    ));
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 1, y: 0 },
+        tile: Tile::LevelExit01,
+        color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
+    });
 }
 
 fn update_level01() {
@@ -106,7 +75,6 @@ fn check_for_exit_level02(
 
 fn stop_level02(mut commands: Commands, sprites: Query<Entity, With<MySprite>>) {
     debug!("stopping {}", NAME);
-    commands.remove_resource::<SpritesheetTexture>();
     for sprite in sprites.iter() {
         commands.entity(sprite).despawn();
     }
