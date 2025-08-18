@@ -3,7 +3,7 @@ use std::{fmt::Display, time::Duration};
 use bevy::app::Plugin;
 use log::debug;
 
-use crate::{AppState::Running, controls::PlayerControlled};
+use crate::{AppState::Running, controls::PlayerControlled, gold::Gold};
 use bevy::prelude::*;
 
 use crate::tiles::TileCoordinate;
@@ -29,6 +29,9 @@ pub enum Tile {
     Grass,
     GrassFlowers,
     LongGrass,
+    GoldCoin,
+    GoldCoins,
+    GoldCoinBag,
 }
 
 impl Tile {
@@ -39,6 +42,9 @@ impl Tile {
             Tile::Grass => Tile::get_index(5, 0),
             Tile::GrassFlowers => Tile::get_index(6, 0),
             Tile::LongGrass => Tile::get_index(7, 0),
+            Tile::GoldCoin => Tile::get_index(41, 3),
+            Tile::GoldCoins => Tile::get_index(41, 4),
+            Tile::GoldCoinBag => Tile::get_index(42, 4),
         }
     }
 
@@ -52,6 +58,9 @@ impl Tile {
             Tile::Grass => Color::linear_rgb(0.0, 1.0, 0.0),
             Tile::GrassFlowers => Color::linear_rgb(0.2, 1.0, 0.2),
             Tile::LongGrass => Color::linear_rgb(0.0, 8.0, 0.0),
+            Tile::GoldCoin => Color::linear_rgb(0.6, 0.6, 0.0),
+            Tile::GoldCoins => Color::linear_rgb(0.6, 0.6, 0.0),
+            Tile::GoldCoinBag => Color::linear_rgb(0.6, 0.6, 0.0),
             _ => Color::default(),
         }
     }
@@ -206,6 +215,15 @@ fn spawn_sprite(
             }
             Tile::Player01 => {
                 commands.entity(new_sprite).insert(PlayerControlled);
+            }
+            Tile::GoldCoin => {
+                commands.entity(new_sprite).insert(Gold { coins: 1 });
+            }
+            Tile::GoldCoins => {
+                commands.entity(new_sprite).insert(Gold { coins: 5 });
+            }
+            Tile::GoldCoinBag => {
+                commands.entity(new_sprite).insert(Gold { coins: 25 });
             }
             _ => (),
         }

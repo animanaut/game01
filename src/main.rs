@@ -12,10 +12,12 @@ use sprites::SpritesPlugin;
 use tiles::TilesPlugin;
 
 use crate::game_camera::GameCameraPlugin;
+use crate::gold::GoldPlugin;
 
 mod app_states;
 mod controls;
 mod game_camera;
+mod gold;
 mod in_game;
 mod keyboard_controller;
 mod level01;
@@ -50,6 +52,7 @@ fn main() {
             Level01Plugin,
             Level02Plugin,
             GameCameraPlugin,
+            GoldPlugin,
         ))
         .add_systems(Startup, setup)
         .run();
