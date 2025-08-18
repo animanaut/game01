@@ -35,7 +35,7 @@ fn start_game_camera(mut commands: Commands, cameras: Query<Entity, With<Camera2
 }
 
 fn follow_player(
-    players: Query<&Transform, (With<PlayerControlled>, Without<GameCamera>)>,
+    players: Query<&GlobalTransform, (With<PlayerControlled>, Without<GameCamera>)>,
     mut cameras: Query<&mut Transform, (With<GameCamera>, Without<PlayerControlled>)>,
 ) {
     debug!("updating {}", NAME);
@@ -44,8 +44,8 @@ fn follow_player(
     // controlled entities
     if let Ok(player) = players.single() {
         if let Ok(mut camera) = cameras.single_mut() {
-            camera.translation.x = player.translation.x;
-            camera.translation.y = player.translation.y;
+            camera.translation.x = player.translation().x;
+            camera.translation.y = player.translation().y;
         }
     }
 }
