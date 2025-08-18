@@ -13,7 +13,11 @@ pub struct GoldPlugin;
 
 impl Plugin for GoldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Running), start_gold)
+        app
+            // events
+            .add_event::<PlayerPickedUpGoldCoins>()
+            // systems
+            .add_systems(OnEnter(Running), start_gold)
             .add_systems(
                 Update,
                 (add_gold_to_player, log_player_gold, check_for_gold).run_if(in_state(Running)),
@@ -31,6 +35,11 @@ pub struct Gold {
 // Resources
 
 // Events
+#[derive(Event)]
+pub struct PlayerPickedUpGoldCoins {
+    pub player: Entity,
+    pub coins: Gold,
+}
 
 // Systems
 fn start_gold() {
@@ -49,21 +58,34 @@ fn check_for_gold(
     mut commands: Commands,
     mut players: Query<(&TileCoordinate, &mut Gold, Entity), With<PlayerControlled>>,
     coins: Query<(&TileCoordinate, &Gold, Entity), Without<PlayerControlled>>,
+    mut event: EventWriter<PlayerPickedUpGoldCoins>,
 ) {
     debug!("checking gold {}", NAME);
-    for (player_coordinate, mut player_coins, _player) in players.iter_mut() {
+    for (player_coordinate, mut player_coins, player) in players.iter_mut() {
         for (gold_coordinate, coins, gold) in coins.iter() {
             if player_coordinate.eq2d(gold_coordinate) {
                 player_coins.coins += coins.coins;
+                event.write(PlayerPickedUpGoldCoins {
+                    player,
+                    coins: *coins,
+                });
                 commands.entity(gold).despawn();
             }
         }
     }
 }
 
-fn log_player_gold(players: Query<(Entity, &Gold), With<PlayerControlled>>) {
-    for (player, gold) in players.iter() {
-        debug!("log player({}) gold: {}", player, gold.coins);
+fn log_player_gold(
+    mut events: EventReader<PlayerPickedUpGoldCoins>,
+    players: Query<&Gold, With<PlayerControlled>>,
+) {
+    for event in events.read() {
+        if let Ok(player_gold) = players.get(event.player) {
+            debug!(
+                "player {} picked up {} gold. now has {} gold",
+                event.player, event.coins.coins, player_gold.coins
+            );
+        }
     }
 }
 
