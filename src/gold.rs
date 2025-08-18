@@ -20,19 +20,31 @@ impl Plugin for GoldPlugin {
             .add_systems(OnEnter(Running), start_gold)
             .add_systems(
                 Update,
-                (add_gold_to_player, log_player_gold, check_for_gold).run_if(in_state(Running)),
+                (
+                    add_gold_to_player,
+                    player_coins_to_the_bank,
+                    log_player_gold,
+                    check_for_gold,
+                )
+                    .run_if(in_state(Running)),
             )
             .add_systems(OnExit(Running), stop_gold);
     }
 }
 
 // Components
-#[derive(Component, Clone, Copy)]
+/// gold component to track coins during a level run on entities
+#[derive(Component, Default, Clone, Copy)]
 pub struct Gold {
     pub coins: i64,
 }
 
 // Resources
+/// total coins of player. can be tracked over multiple levels.
+#[derive(Resource, Default)]
+pub struct PlayerGold {
+    pub coins: i64,
+}
 
 // Events
 #[derive(Event)]
@@ -42,15 +54,21 @@ pub struct PlayerPickedUpGoldCoins {
 }
 
 // Systems
-fn start_gold() {
+fn start_gold(mut commands: Commands) {
     debug!("start_gold {}", NAME);
+    commands.init_resource::<PlayerGold>();
 }
 
-fn add_gold_to_player(mut commands: Commands, mut players: Query<Entity, Added<PlayerControlled>>) {
-    // TODO: transfer from resource to player on level change
+fn add_gold_to_player(
+    mut commands: Commands,
+    mut players: Query<Entity, Added<PlayerControlled>>,
+    player_gold: Res<PlayerGold>,
+) {
     for player in players.iter_mut() {
-        commands.entity(player).insert(Gold { coins: 0 });
-        debug!("added 0 gold to player {}", player);
+        commands.entity(player).insert(Gold {
+            coins: player_gold.coins,
+        });
+        debug!("added {} gold to player {}", player_gold.coins, player);
     }
 }
 
@@ -89,8 +107,20 @@ fn log_player_gold(
     }
 }
 
-fn stop_gold(mut _commands: Commands) {
+fn player_coins_to_the_bank(
+    mut events: EventReader<PlayerPickedUpGoldCoins>,
+    mut player_gold: ResMut<PlayerGold>,
+) {
+    for event in events.read() {
+        player_gold.coins += event.coins.coins;
+    }
+}
+
+fn stop_gold(mut commands: Commands, player_gold: Res<PlayerGold>) {
     debug!("stopping {}", NAME);
+    // TODO: emit event with final amount
+    debug!("final amount in bank: {}", player_gold.coins);
+    commands.remove_resource::<PlayerGold>();
 }
 
 // helper functions
