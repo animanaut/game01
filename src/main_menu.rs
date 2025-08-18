@@ -1,7 +1,7 @@
 use AppState::MainMenu;
 use bevy::prelude::*;
 
-use crate::app_states::AppState;
+use crate::{app_states::AppState, gold::FinalPlayerGoldAmount};
 
 // Constants
 const NAME: &str = "main_menu";
@@ -16,7 +16,10 @@ pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(MainMenu), start_main_menu)
-            .add_systems(Update, (update_main_menu).run_if(in_state(MainMenu)))
+            .add_systems(
+                Update,
+                (update_main_menu, report_last_run).run_if(in_state(MainMenu)),
+            )
             .add_systems(OnExit(MainMenu), stop_main_menu);
     }
 }
@@ -95,6 +98,16 @@ fn start_main_menu(mut commands: Commands) {
     // insert resource
     commands.insert_resource(MainMenuData { main_menu_layout });
 }
+
+fn report_last_run(mut final_gold: EventReader<FinalPlayerGoldAmount>) {
+    for final_player_gold in final_gold.read() {
+        debug!(
+            "final gold from last run: {}",
+            final_player_gold.coins.coins
+        );
+    }
+}
+
 fn update_main_menu(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &ButtonTargetState),

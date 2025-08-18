@@ -16,6 +16,7 @@ impl Plugin for GoldPlugin {
         app
             // events
             .add_event::<PlayerPickedUpGoldCoins>()
+            .add_event::<FinalPlayerGoldAmount>()
             // systems
             .add_systems(OnEnter(Running), start_gold)
             .add_systems(
@@ -50,6 +51,11 @@ pub struct PlayerGold {
 #[derive(Event)]
 pub struct PlayerPickedUpGoldCoins {
     pub player: Entity,
+    pub coins: Gold,
+}
+
+#[derive(Event)]
+pub struct FinalPlayerGoldAmount {
     pub coins: Gold,
 }
 
@@ -116,9 +122,17 @@ fn player_coins_to_the_bank(
     }
 }
 
-fn stop_gold(mut commands: Commands, player_gold: Res<PlayerGold>) {
+fn stop_gold(
+    mut commands: Commands,
+    player_gold: Res<PlayerGold>,
+    mut event: EventWriter<FinalPlayerGoldAmount>,
+) {
     debug!("stopping {}", NAME);
-    // TODO: emit event with final amount
+    event.write(FinalPlayerGoldAmount {
+        coins: Gold {
+            coins: player_gold.coins,
+        },
+    });
     debug!("final amount in bank: {}", player_gold.coins);
     commands.remove_resource::<PlayerGold>();
 }
