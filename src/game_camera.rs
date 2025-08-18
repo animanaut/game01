@@ -42,12 +42,12 @@ fn follow_player(
     // TODO: assumption: one player, one camera, for now
     // otherwise we would have to calculate an average and a zoom level to capture all player
     // controlled entities
-    if let Ok(player) = players.single() {
-        if let Ok(mut camera) = cameras.single_mut() {
-            let move_dir = player.translation() - camera.translation;
-            camera.translation.x += move_dir.x * 0.125;
-            camera.translation.y += move_dir.y * 0.125;
-        }
+    if let Ok(player) = players.single()
+        && let Ok(mut camera) = cameras.single_mut()
+    {
+        let move_dir = player.translation() - camera.translation;
+        camera.translation.x += move_dir.x * 0.125;
+        camera.translation.y += move_dir.y * 0.125;
     }
 }
 
