@@ -11,8 +11,11 @@ use splash::SplashPlugin;
 use sprites::SpritesPlugin;
 use tiles::TilesPlugin;
 
+use crate::game_camera::GameCameraPlugin;
+
 mod app_states;
 mod controls;
+mod game_camera;
 mod in_game;
 mod keyboard_controller;
 mod level01;
@@ -46,6 +49,7 @@ fn main() {
             TilesPlugin,
             Level01Plugin,
             Level02Plugin,
+            GameCameraPlugin,
         ))
         .add_systems(Startup, setup)
         .run();
