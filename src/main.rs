@@ -13,6 +13,7 @@ use tiles::TilesPlugin;
 
 use crate::game_camera::GameCameraPlugin;
 use crate::gold::GoldPlugin;
+use crate::tutorial::TutorialPlugin;
 
 mod app_states;
 mod controls;
@@ -26,6 +27,7 @@ mod main_menu;
 mod splash;
 mod sprites;
 mod tiles;
+mod tutorial;
 
 fn main() {
     App::new()
@@ -53,6 +55,7 @@ fn main() {
             Level02Plugin,
             GameCameraPlugin,
             GoldPlugin,
+            TutorialPlugin,
         ))
         .add_systems(Startup, setup)
         .run();

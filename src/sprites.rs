@@ -3,7 +3,7 @@ use std::{fmt::Display, time::Duration};
 use bevy::app::Plugin;
 use log::debug;
 
-use crate::{AppState::Running, controls::PlayerControlled, gold::Gold};
+use crate::{AppState::Running, controls::PlayerControlled, gold::Gold, tutorial::Tutorial};
 use bevy::prelude::*;
 
 use crate::tiles::TileCoordinate;
@@ -165,6 +165,7 @@ pub struct SpawnSprite {
     pub tile: Tile,
     /// custom color, will override defaults
     pub color: Option<Color>,
+    pub tutorial: bool,
 }
 
 impl SpawnSprite {
@@ -249,6 +250,10 @@ fn spawn_sprite(
                 commands.entity(new_sprite).insert(Gold { coins: 25 });
             }
             _ => (),
+        }
+
+        if spawn_sprite.tutorial {
+            commands.entity(new_sprite).insert(Tutorial);
         }
     }
 }

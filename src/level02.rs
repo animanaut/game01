@@ -22,7 +22,7 @@ impl Plugin for Level02Plugin {
         app.add_systems(OnEnter(Level02), start_level02)
             .add_systems(
                 Update,
-                (update_level01, check_for_exit_level02)
+                (update_level02, check_for_exit_level02)
                     .run_if(in_state(Running))
                     .run_if(in_state(Level02)),
             )
@@ -44,12 +44,14 @@ fn start_level02(mut spawn_sprite: EventWriter<SpawnSprite>) {
         coordinate: TileCoordinate { x: 0, y: 0, z: 0 },
         tile: Tile::Player01,
         color: Some(Color::linear_rgb(0.5, 0.5, 0.5)),
+        ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 1, y: 0, z: 1 },
         tile: Tile::LevelExit01,
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
+        ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
@@ -89,7 +91,7 @@ fn start_level02(mut spawn_sprite: EventWriter<SpawnSprite>) {
     });
 }
 
-fn update_level01() {
+fn update_level02() {
     debug!("updating {}", NAME);
 }
 
