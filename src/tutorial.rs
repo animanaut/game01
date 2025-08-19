@@ -13,7 +13,12 @@ pub struct TutorialPlugin;
 
 impl Plugin for TutorialPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Running), start_tutorial)
+        app
+            // events
+            .add_event::<CountDownTutorialCounter>()
+            .add_event::<CountDownFinished>()
+            // systems
+            .add_systems(OnEnter(Running), start_tutorial)
             .add_systems(
                 Update,
                 (update_tutorial, countdown, countdown_finished).run_if(in_state(Running)),
