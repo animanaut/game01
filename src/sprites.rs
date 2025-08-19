@@ -22,16 +22,31 @@ const TILE_SHEET_FILE: &str = "Tilesheet/monochrome-transparent.png";
 pub const ANIM_DURATION: u64 = 200;
 
 // Enums
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 pub enum Tile {
+    // creature sprites
     Player01,
+    // exit tiles
     LevelExit01,
+    // floor tiles
+    #[default]
     Grass,
     GrassFlowers,
     LongGrass,
+    // valuables
     GoldCoin,
     GoldCoins,
     GoldCoinBag,
+    // characters
+    A,
+    D,
+    S,
+    W,
+    // controls
+    LeftDigiPadRound,
+    RightDigiPadRound,
+    UpDigiPadRound,
+    DownDigiPadRound,
 }
 
 impl Tile {
@@ -45,6 +60,14 @@ impl Tile {
             Tile::GoldCoin => Tile::get_index(41, 3),
             Tile::GoldCoins => Tile::get_index(41, 4),
             Tile::GoldCoinBag => Tile::get_index(42, 4),
+            Tile::A => Tile::get_index(35, 18),
+            Tile::D => Tile::get_index(38, 18),
+            Tile::S => Tile::get_index(39, 19),
+            Tile::W => Tile::get_index(44, 19),
+            Tile::LeftDigiPadRound => Tile::get_index(47, 11),
+            Tile::RightDigiPadRound => Tile::get_index(45, 11),
+            Tile::UpDigiPadRound => Tile::get_index(44, 11),
+            Tile::DownDigiPadRound => Tile::get_index(46, 11),
         }
     }
 
@@ -136,7 +159,7 @@ pub struct SpritesheetTextureAtlasLayout(pub Handle<TextureAtlasLayout>);
 #[derive(Event)]
 pub struct MoveAnimationFinished(Entity);
 
-#[derive(Event)]
+#[derive(Event, Default)]
 pub struct SpawnSprite {
     pub coordinate: TileCoordinate,
     pub tile: Tile,

@@ -44,49 +44,61 @@ fn start_level01(mut spawn_sprite: EventWriter<SpawnSprite>) {
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 0, y: 0, z: 0 },
         tile: Tile::Player01,
-        color: None,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: -3, y: 0, z: 1 },
+        tile: Tile::A,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: -4, y: 0, z: 1 },
+        tile: Tile::LeftDigiPadRound,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 3, y: 0, z: 1 },
+        tile: Tile::D,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 4, y: 0, z: 1 },
+        tile: Tile::RightDigiPadRound,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: -2, y: 1, z: 1 },
+        tile: Tile::W,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: -2, y: 2, z: 1 },
+        tile: Tile::UpDigiPadRound,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: -2, y: -1, z: 1 },
+        tile: Tile::S,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: -2, y: -2, z: 1 },
+        tile: Tile::DownDigiPadRound,
+        ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 2, y: 0, z: -1 },
         tile: Tile::LevelExit01,
-        color: None,
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 2, y: 1, z: -1 },
-        tile: Tile::Grass,
-        color: None,
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 1, y: 1, z: -1 },
-        tile: Tile::GrassFlowers,
-        color: None,
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 0, y: 1, z: -1 },
-        tile: Tile::LongGrass,
-        color: None,
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 0, y: -2, z: -1 },
-        tile: Tile::GoldCoin,
-        color: None,
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 2, y: -2, z: -1 },
-        tile: Tile::GoldCoins,
-        color: None,
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 4, y: -2, z: -1 },
-        tile: Tile::GoldCoinBag,
-        color: None,
+        ..default()
     });
 }
 

@@ -51,6 +51,42 @@ fn start_level02(mut spawn_sprite: EventWriter<SpawnSprite>) {
         tile: Tile::LevelExit01,
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
     });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 2, y: 1, z: -1 },
+        tile: Tile::Grass,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 1, y: 1, z: -1 },
+        tile: Tile::GrassFlowers,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 0, y: 1, z: -1 },
+        tile: Tile::LongGrass,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 0, y: -2, z: -1 },
+        tile: Tile::GoldCoin,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 2, y: -2, z: -1 },
+        tile: Tile::GoldCoins,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 4, y: -2, z: -1 },
+        tile: Tile::GoldCoinBag,
+        ..default()
+    });
 }
 
 fn update_level01() {
