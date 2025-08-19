@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::app::Plugin;
 
 use AppState::{MainMenu, Running};
@@ -5,10 +7,13 @@ use LevelState::Level02;
 use bevy::prelude::*;
 
 use crate::{
+    animation::{Animation, AnimationType},
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
+    gold::PlayerPickedUpGoldCoins,
     sprites::{ExfilSprite, MySprite, SpawnSprite, Tile},
     tiles::TileCoordinate,
+    tutorial::Tutorial,
 };
 
 // Constants
@@ -22,7 +27,12 @@ impl Plugin for Level02Plugin {
         app.add_systems(OnEnter(Level02), start_level02)
             .add_systems(
                 Update,
-                (update_level02, check_for_exit_level02)
+                (
+                    update_level02,
+                    added_tutorial_components,
+                    check_for_tutorial_action,
+                    check_for_exit_level02,
+                )
                     .run_if(in_state(Running))
                     .run_if(in_state(Level02)),
             )
@@ -75,24 +85,56 @@ fn start_level02(mut spawn_sprite: EventWriter<SpawnSprite>) {
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 0, y: -2, z: -1 },
         tile: Tile::GoldCoin,
+        tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 2, y: -2, z: -1 },
         tile: Tile::GoldCoins,
+        tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 4, y: -2, z: -1 },
         tile: Tile::GoldCoinBag,
+        tutorial: true,
         ..default()
     });
 }
 
 fn update_level02() {
     debug!("updating {}", NAME);
+}
+
+fn added_tutorial_components(
+    mut commands: Commands,
+    added_tutorials: Query<Entity, Added<Tutorial>>,
+) {
+    for added in added_tutorials.iter() {
+        commands.entity(added).insert((
+            Animation::new(
+                Timer::new(Duration::from_millis(400), TimerMode::Repeating),
+                EaseFunction::SineInOut,
+            ),
+            AnimationType::Pulse,
+        ));
+    }
+}
+
+fn check_for_tutorial_action(
+    mut commands: Commands,
+    tutorial: Query<(Entity, &Animation, &AnimationType), With<Tutorial>>,
+    mut gold_pickup: EventReader<PlayerPickedUpGoldCoins>,
+) {
+    for _ in gold_pickup.read() {
+        for (t, _, _) in tutorial.iter() {
+            commands.entity(t).remove::<Tutorial>();
+            commands.entity(t).remove::<Animation>();
+            commands.entity(t).remove::<AnimationType>();
+        }
+    }
 }
 
 fn check_for_exit_level02(

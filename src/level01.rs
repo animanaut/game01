@@ -134,7 +134,7 @@ fn added_tutorial_components(
         commands.entity(added).insert(TutorialCountdown::new(4));
         commands.entity(added).insert((
             Animation::new(
-                Timer::new(Duration::from_millis(1234), TimerMode::Repeating),
+                Timer::new(Duration::from_millis(400), TimerMode::Repeating),
                 EaseFunction::SineInOut,
             ),
             AnimationType::Pulse,

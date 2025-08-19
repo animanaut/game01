@@ -5,7 +5,7 @@ use bevy::app::Plugin;
 use AppState::Running;
 use bevy::prelude::*;
 
-use crate::app_states::AppState;
+use crate::{app_states::AppState, sprites::SPRITE_SCALE};
 
 // Constants
 const NAME: &str = "animation";
@@ -91,20 +91,29 @@ pub struct AnimationFinished(Entity);
 
 // Systems
 
-fn update_animation(animations: Query<(&Animation, &AnimationType, &GlobalTransform)>) {
-    for (animation, animation_type, transform) in animations.iter() {
+fn update_animation(
+    mut animations: Query<(&Animation, &AnimationType, &GlobalTransform, &mut Transform)>,
+) {
+    for (animation, animation_type, g_transform, mut transform) in animations.iter_mut() {
         debug!("eased fraction: {}", animation.eased_fraction());
-        debug!("animation translation: {}", transform.translation());
+        debug!("animation translation: {}", g_transform.translation());
         debug!(
             "animation rotation: {}",
-            transform.rotation().to_scaled_axis()
+            g_transform.rotation().to_scaled_axis()
         );
+        let eased_fraction = animation.eased_fraction();
+        let f = std::f32::consts::FRAC_PI_2;
+        let x = ((eased_fraction.asin() / f) * 2.0) - 1.0;
+        debug!("x: {}", x);
         match animation_type {
             AnimationType::Wiggle => {
                 debug!("i'm a wiggler");
             }
             AnimationType::Pulse => {
                 debug!("i'm a pulser");
+                transform.scale.x = SPRITE_SCALE + (x * 0.25);
+                transform.scale.y = SPRITE_SCALE + (x * 0.25);
+                transform.scale.z = SPRITE_SCALE * 1.0;
             }
             AnimationType::Popup => {
                 debug!("i'm poppin up");
