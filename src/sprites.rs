@@ -23,6 +23,7 @@ pub const ANIM_DURATION: u64 = 200;
 
 // Enums
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
+#[allow(dead_code)]
 pub enum Tile {
     // creature sprites
     Player01,
@@ -62,7 +63,7 @@ impl Tile {
             Tile::GoldCoinBag => Tile::get_index(42, 4),
             Tile::A => Tile::get_index(35, 18),
             Tile::D => Tile::get_index(38, 18),
-            Tile::S => Tile::get_index(39, 19),
+            Tile::S => Tile::get_index(40, 19),
             Tile::W => Tile::get_index(44, 19),
             Tile::LeftDigiPadRound => Tile::get_index(47, 11),
             Tile::RightDigiPadRound => Tile::get_index(45, 11),

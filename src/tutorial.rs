@@ -37,14 +37,20 @@ pub struct Tutorial;
 #[derive(Component, Default)]
 pub struct TutorialCountdown(u64);
 
+impl TutorialCountdown {
+    pub fn new(initial_value: u64) -> Self {
+        TutorialCountdown(initial_value)
+    }
+}
+
 // Resources
 
 // Events
 #[derive(Event)]
-pub struct CountDownTutorialCounter(Entity);
+pub struct CountDownTutorialCounter(pub Entity);
 
 #[derive(Event)]
-pub struct CountDownFinished(Entity);
+pub struct CountDownFinished(pub Entity);
 
 // Systems
 fn start_tutorial(mut _commands: Commands) {
@@ -61,12 +67,12 @@ fn countdown(
     mut counters: Query<(Entity, &mut TutorialCountdown)>,
 ) {
     for countdown in countdowns.read() {
-        if let Ok((entity, mut counter)) = counters.get_mut(countdown.0) {
-            if counter.0 != 0 {
-                counter.0 -= 1;
-                if counter.0 == 0 {
-                    finished.write(CountDownFinished(entity));
-                }
+        if let Ok((entity, mut counter)) = counters.get_mut(countdown.0)
+            && counter.0 != 0
+        {
+            counter.0 -= 1;
+            if counter.0 == 0 {
+                finished.write(CountDownFinished(entity));
             }
         }
     }
