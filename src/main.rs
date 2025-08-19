@@ -11,10 +11,12 @@ use splash::SplashPlugin;
 use sprites::SpritesPlugin;
 use tiles::TilesPlugin;
 
+use crate::animation::AnimationPlugin;
 use crate::game_camera::GameCameraPlugin;
 use crate::gold::GoldPlugin;
 use crate::tutorial::TutorialPlugin;
 
+mod animation;
 mod app_states;
 mod controls;
 mod game_camera;
@@ -43,6 +45,7 @@ fn main() {
                 }),
         )
         .add_plugins((
+            AnimationPlugin,
             AppStatesPlugin,
             MainMenuPlugin,
             SplashPlugin,

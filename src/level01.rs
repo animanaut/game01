@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::app::Plugin;
 
 use AppState::Running;
@@ -5,6 +7,8 @@ use LevelState::Level01;
 use LevelState::Level02;
 use bevy::prelude::*;
 
+use crate::animation::Animation;
+use crate::animation::AnimationType;
 use crate::controls::{Down, Left, Right, Up};
 use crate::tutorial::CountDownFinished;
 use crate::tutorial::CountDownTutorialCounter;
@@ -128,6 +132,13 @@ fn added_tutorial_components(
 ) {
     for added in added_tutorials.iter() {
         commands.entity(added).insert(TutorialCountdown::new(4));
+        commands.entity(added).insert((
+            Animation::new(
+                Timer::new(Duration::from_millis(1234), TimerMode::Repeating),
+                EaseFunction::SineInOut,
+            ),
+            AnimationType::Pulse,
+        ));
     }
 }
 
