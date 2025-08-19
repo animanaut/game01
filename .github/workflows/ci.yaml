@@ -12,7 +12,7 @@ env:
 jobs:
   # Run cargo test
   test:
-    if: false
+    if: true # use this to toggle tests on/off
     name: Test Suite
     runs-on: ubuntu-latest
     timeout-minutes: 30
