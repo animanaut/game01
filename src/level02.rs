@@ -2,8 +2,8 @@ use std::time::Duration;
 
 use bevy::app::Plugin;
 
-use AppState::{MainMenu, Running};
-use LevelState::Level02;
+use AppState::Running;
+use LevelState::{Level02, Level03};
 use bevy::prelude::*;
 
 use crate::{
@@ -138,7 +138,7 @@ fn check_for_tutorial_action(
 }
 
 fn check_for_exit_level02(
-    mut next_state: ResMut<NextState<AppState>>,
+    mut next_state: ResMut<NextState<LevelState>>,
     players: Query<&TileCoordinate, (With<PlayerControlled>, Without<ExfilSprite>)>,
     exfils: Query<&TileCoordinate, (With<ExfilSprite>, Without<PlayerControlled>)>,
 ) {
@@ -147,7 +147,7 @@ fn check_for_exit_level02(
         for exfil_coordinate in exfils.iter() {
             if player_coordinate.eq2d(exfil_coordinate) {
                 // TODO: smoother transition, maybe with animation on an event
-                next_state.set(MainMenu);
+                next_state.set(Level03);
             }
         }
     }

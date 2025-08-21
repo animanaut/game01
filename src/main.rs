@@ -14,6 +14,7 @@ use tiles::TilesPlugin;
 use crate::animation::AnimationPlugin;
 use crate::game_camera::GameCameraPlugin;
 use crate::gold::GoldPlugin;
+use crate::level03::Level03Plugin;
 use crate::tutorial::TutorialPlugin;
 
 mod animation;
@@ -25,6 +26,7 @@ mod in_game;
 mod keyboard_controller;
 mod level01;
 mod level02;
+mod level03;
 mod main_menu;
 mod splash;
 mod sprites;
@@ -56,6 +58,7 @@ fn main() {
             TilesPlugin,
             Level01Plugin,
             Level02Plugin,
+            Level03Plugin,
             GameCameraPlugin,
             GoldPlugin,
             TutorialPlugin,
