@@ -10,6 +10,7 @@ use bevy::prelude::*;
 use crate::animation::Animation;
 use crate::animation::AnimationType;
 use crate::controls::{Down, Left, Right, Up};
+use crate::in_game::LevelFinished;
 use crate::tutorial::CountDownFinished;
 use crate::tutorial::CountDownTutorialCounter;
 use crate::tutorial::Tutorial;
@@ -204,11 +205,16 @@ fn check_for_exit_level01(
     }
 }
 
-fn stop_level01(mut commands: Commands, sprites: Query<Entity, With<MySprite>>) {
+fn stop_level01(
+    mut commands: Commands,
+    sprites: Query<Entity, With<MySprite>>,
+    mut finished: EventWriter<LevelFinished>,
+) {
     debug!("stopping {}", NAME);
     for sprite in sprites.iter() {
         commands.entity(sprite).despawn();
     }
+    finished.write(LevelFinished);
 }
 
 // helper functions

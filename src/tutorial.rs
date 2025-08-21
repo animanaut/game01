@@ -19,9 +19,14 @@ impl Plugin for TutorialPlugin {
             .add_event::<CountDownFinished>()
             // systems
             .add_systems(OnEnter(Running), start_tutorial)
+            .add_systems(Update, (update_tutorial).run_if(in_state(Running)))
             .add_systems(
                 Update,
-                (update_tutorial, countdown, countdown_finished).run_if(in_state(Running)),
+                countdown.run_if(on_event::<CountDownTutorialCounter>),
+            )
+            .add_systems(
+                Update,
+                countdown_finished.run_if(on_event::<CountDownFinished>),
             )
             .add_systems(OnExit(Running), stop_tutorial);
     }
@@ -66,10 +71,13 @@ fn countdown(
     mut finished: EventWriter<CountDownFinished>,
     mut counters: Query<(Entity, &mut TutorialCountdown)>,
 ) {
+    debug!("trying to countdown on event");
     for countdown in countdowns.read() {
+        debug!("trying to get countdown for {}", countdown.0);
         if let Ok((entity, mut counter)) = counters.get_mut(countdown.0)
             && counter.0 != 0
         {
+            debug!("trying to get countdown counter {}", counter.0);
             counter.0 -= 1;
             if counter.0 == 0 {
                 finished.write(CountDownFinished(entity));

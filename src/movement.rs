@@ -1,4 +1,4 @@
-use bevy::app::Plugin;
+use bevy::{app::Plugin, platform::collections::HashMap};
 
 use AppState::Running;
 use bevy::prelude::*;
@@ -6,8 +6,9 @@ use bevy::prelude::*;
 use crate::{
     app_states::AppState,
     controls::{Down, Left, PlayerControlled, Right, Up},
+    in_game::LevelFinished,
     sprites::MoveAnimation,
-    tiles::TileCoordinate,
+    tiles::{SolidTile, TileCoordinate},
 };
 
 // Constants
@@ -21,25 +22,58 @@ impl Plugin for MovementPlugin {
         app.add_systems(OnEnter(Running), start_movement)
             .add_systems(
                 Update,
-                (handle_input, update_movement).run_if(in_state(Running)),
+                (handle_input, update_movement, solid_tiles_added).run_if(in_state(Running)),
             )
-            .add_systems(OnExit(Running), stop_movement);
+            .add_systems(
+                Update,
+                (reset_movement)
+                    .run_if(resource_exists::<SolidTiles>)
+                    .run_if(on_event::<LevelFinished>),
+            )
+            .add_systems(
+                OnExit(Running),
+                stop_movement.run_if(resource_exists::<SolidTiles>),
+            );
     }
 }
 
 // Components
 
 // Resources
+#[derive(Resource, Default, Debug)]
+struct SolidTiles {
+    pub map: HashMap<TileCoordinate, Entity>,
+}
 
 // Events
 
 // Systems
-fn start_movement(mut _commands: Commands) {
+fn start_movement(mut commands: Commands) {
     debug!("starting {}", NAME);
+    commands.insert_resource(SolidTiles::default());
 }
 
 fn update_movement() {
     debug!("updating {}", NAME);
+}
+
+fn solid_tiles_added(
+    mut _commands: Commands,
+    added: Query<(Entity, &TileCoordinate), Added<SolidTile>>,
+    mut solid_tiles: ResMut<SolidTiles>,
+) {
+    for (entity, tile_coordinate) in added.iter() {
+        debug!("solid tiles added at {} for {}", tile_coordinate, entity);
+        if let Some(overridden) = solid_tiles.map.insert(tile_coordinate.clone(), entity) {
+            debug!(
+                "solid tiles replaced at {} for {}. old entity: {}",
+                tile_coordinate, entity, overridden
+            );
+            // TODO: cleanup overridden solid tile. not sure how if this is the right place
+            // TODO: following line will crash CountdownTimer event listener
+            //commands.entity(overridden).despawn();
+        }
+    }
 }
 
 /// receive input events and trigger movement and animations here.
@@ -50,6 +84,7 @@ fn handle_input(
     mut right: EventReader<Right>,
     mut up: EventReader<Up>,
     mut down: EventReader<Down>,
+    solid_blocks: Res<SolidTiles>,
 ) {
     debug!("handle input {}", NAME);
 
@@ -57,15 +92,17 @@ fn handle_input(
         debug!("handle left input");
 
         for (e, tc) in players.iter_mut() {
-            // TODO: check for movement here
             let start = tc.clone();
             let mut end = tc.clone();
             end.x = tc.x - 1;
-            commands.entity(e).insert(MoveAnimation {
-                start,
-                end,
-                ..default()
-            });
+
+            if solid_blocks.map.get(&end).is_none() {
+                commands.entity(e).insert(MoveAnimation {
+                    start,
+                    end,
+                    ..default()
+                });
+            }
         }
     }
 
@@ -76,11 +113,14 @@ fn handle_input(
             let start = tc.clone();
             let mut end = tc.clone();
             end.x = tc.x + 1;
-            commands.entity(e).insert(MoveAnimation {
-                start,
-                end,
-                ..default()
-            });
+
+            if solid_blocks.map.get(&end).is_none() {
+                commands.entity(e).insert(MoveAnimation {
+                    start,
+                    end,
+                    ..default()
+                });
+            }
         }
     }
 
@@ -91,11 +131,14 @@ fn handle_input(
             let start = tc.clone();
             let mut end = tc.clone();
             end.y = tc.y + 1;
-            commands.entity(e).insert(MoveAnimation {
-                start,
-                end,
-                ..default()
-            });
+
+            if solid_blocks.map.get(&end).is_none() {
+                commands.entity(e).insert(MoveAnimation {
+                    start,
+                    end,
+                    ..default()
+                });
+            }
         }
     }
 
@@ -106,17 +149,27 @@ fn handle_input(
             let start = tc.clone();
             let mut end = tc.clone();
             end.y = tc.y - 1;
-            commands.entity(e).insert(MoveAnimation {
-                start,
-                end,
-                ..default()
-            });
+
+            if solid_blocks.map.get(&end).is_none() {
+                commands.entity(e).insert(MoveAnimation {
+                    start,
+                    end,
+                    ..default()
+                });
+            }
         }
     }
 }
 
-fn stop_movement(mut _commands: Commands) {
+fn reset_movement(mut commands: Commands, mut events: EventReader<LevelFinished>) {
+    for _ in events.read() {
+        commands.insert_resource(SolidTiles::default());
+    }
+}
+
+fn stop_movement(mut commands: Commands) {
     debug!("stopping {}", NAME);
+    commands.remove_resource::<SolidTiles>();
 }
 
 // helper functions

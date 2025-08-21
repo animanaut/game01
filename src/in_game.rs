@@ -19,7 +19,11 @@ pub struct InGamePlugin;
 
 impl Plugin for InGamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Running), start_in_game)
+        app
+            // events
+            .add_event::<LevelFinished>()
+            // systems
+            .add_systems(OnEnter(Running), start_in_game)
             .add_systems(
                 Update,
                 (
@@ -39,6 +43,9 @@ impl Plugin for InGamePlugin {
 // Resources
 
 // Events
+/// event when level is done
+#[derive(Event)]
+pub struct LevelFinished;
 
 // Systems
 fn start_in_game(mut _commands: Commands) {

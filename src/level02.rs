@@ -11,6 +11,7 @@ use crate::{
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
     gold::PlayerPickedUpGoldCoins,
+    in_game::LevelFinished,
     sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
     tiles::TileCoordinate,
     tutorial::Tutorial,
@@ -153,11 +154,16 @@ fn check_for_exit_level02(
     }
 }
 
-fn stop_level02(mut commands: Commands, sprites: Query<Entity, With<MySprite>>) {
+fn stop_level02(
+    mut commands: Commands,
+    sprites: Query<Entity, With<MySprite>>,
+    mut finished: EventWriter<LevelFinished>,
+) {
     debug!("stopping {}", NAME);
     for sprite in sprites.iter() {
         commands.entity(sprite).despawn();
     }
+    finished.write(LevelFinished);
 }
 
 // helper functions

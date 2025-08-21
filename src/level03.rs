@@ -10,6 +10,7 @@ use crate::{
     animation::{Animation, AnimationType},
     app_states::{AppState, LevelState},
     controls::{Down, Left, PlayerControlled, Right, Up},
+    in_game::LevelFinished,
     sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
     tiles::TileCoordinate,
     tutorial::{Tutorial, TutorialCountdown},
@@ -64,35 +65,35 @@ fn start_level03(mut spawn_sprite: EventWriter<SpawnSprite>) {
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 1, y: 1, z: 3 },
+        coordinate: TileCoordinate { x: 1, y: 1, z: 0 },
         tile: SpriteSheetTile::BrickWall01,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 0, y: 1, z: 3 },
+        coordinate: TileCoordinate { x: 0, y: 1, z: 0 },
         tile: SpriteSheetTile::BrickWall01,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 2, y: 1, z: 3 },
+        coordinate: TileCoordinate { x: 2, y: 1, z: 0 },
         tile: SpriteSheetTile::BrickWall01,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 0, y: 2, z: 3 },
+        coordinate: TileCoordinate { x: 0, y: 2, z: 0 },
         tile: SpriteSheetTile::BrickWall01,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 2, y: 2, z: 3 },
+        coordinate: TileCoordinate { x: 2, y: 2, z: 0 },
         tile: SpriteSheetTile::BrickWall01,
         tutorial: true,
         ..default()
@@ -174,11 +175,16 @@ fn check_for_exit_level03(
     }
 }
 
-fn stop_level03(mut commands: Commands, sprites: Query<Entity, With<MySprite>>) {
+fn stop_level03(
+    mut commands: Commands,
+    sprites: Query<Entity, With<MySprite>>,
+    mut finished: EventWriter<LevelFinished>,
+) {
     debug!("stopping {}", NAME);
     for sprite in sprites.iter() {
         commands.entity(sprite).despawn();
     }
+    finished.write(LevelFinished);
 }
 
 // helper functions

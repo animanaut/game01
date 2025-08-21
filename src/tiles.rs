@@ -31,7 +31,7 @@ impl Plugin for TilesPlugin {
 #[derive(Component)]
 pub struct Tile;
 
-#[derive(Component, PartialEq, Clone, Default)]
+#[derive(Component, PartialEq, Eq, Hash, Clone, Default, Debug)]
 pub struct TileCoordinate {
     pub x: i32,
     pub y: i32,
