@@ -1,11 +1,12 @@
 use bevy::app::Plugin;
 
-use AppState::Running;
 use bevy::prelude::*;
+
+use AppState::Running;
 
 use crate::{
     app_states::AppState,
-    controls::{Down, Left, PlayerControlled, Right, Up},
+    controls::PlayerControlled,
     sprites::{MoveAnimation, SPRITE_DIM, SPRITE_SCALE},
     tiles::TileCoordinate,
 };
@@ -23,7 +24,6 @@ impl Plugin for InGamePlugin {
                 Update,
                 (
                     update_in_game,
-                    handle_input,
                     update_tile_coordinates,
                     update_transforms,
                     logging,
@@ -97,79 +97,6 @@ fn update_tile_coordinates(
         // TODO: just assign end_tile? throws a cannot be dereferenced currently
         tc.x = a.end.x;
         tc.y = a.end.y;
-    }
-}
-
-/// receive input events and trigger movement and animations here.
-fn handle_input(
-    mut commands: Commands,
-    mut players: Query<(Entity, &mut TileCoordinate), With<PlayerControlled>>,
-    mut left: EventReader<Left>,
-    mut right: EventReader<Right>,
-    mut up: EventReader<Up>,
-    mut down: EventReader<Down>,
-) {
-    debug!("handle input {}", NAME);
-
-    for _ in left.read() {
-        debug!("handle left input");
-
-        for (e, tc) in players.iter_mut() {
-            // TODO: check for movement here
-            let start = tc.clone();
-            let mut end = tc.clone();
-            end.x = tc.x - 1;
-            commands.entity(e).insert(MoveAnimation {
-                start,
-                end,
-                ..default()
-            });
-        }
-    }
-
-    for _ in right.read() {
-        debug!("handle right input");
-
-        for (e, tc) in players.iter_mut() {
-            let start = tc.clone();
-            let mut end = tc.clone();
-            end.x = tc.x + 1;
-            commands.entity(e).insert(MoveAnimation {
-                start,
-                end,
-                ..default()
-            });
-        }
-    }
-
-    for _ in up.read() {
-        debug!("handle up input");
-
-        for (e, tc) in players.iter_mut() {
-            let start = tc.clone();
-            let mut end = tc.clone();
-            end.y = tc.y + 1;
-            commands.entity(e).insert(MoveAnimation {
-                start,
-                end,
-                ..default()
-            });
-        }
-    }
-
-    for _ in down.read() {
-        debug!("handle up input");
-
-        for (e, tc) in players.iter_mut() {
-            let start = tc.clone();
-            let mut end = tc.clone();
-            end.y = tc.y - 1;
-            commands.entity(e).insert(MoveAnimation {
-                start,
-                end,
-                ..default()
-            });
-        }
     }
 }
 
