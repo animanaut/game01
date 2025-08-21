@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use bevy::app::Plugin;
 
 use AppState::Running;
@@ -8,7 +6,7 @@ use bevy::prelude::*;
 use crate::{
     app_states::AppState,
     controls::{Down, Left, PlayerControlled, Right, Up},
-    sprites::{ANIM_DURATION, MoveAnimation, SPRITE_DIM, SPRITE_SCALE},
+    sprites::{MoveAnimation, SPRITE_DIM, SPRITE_SCALE},
     tiles::TileCoordinate,
 };
 
@@ -105,10 +103,7 @@ fn update_tile_coordinates(
 /// receive input events and trigger movement and animations here.
 fn handle_input(
     mut commands: Commands,
-    mut players: Query<
-        (Entity, &mut TileCoordinate, Option<&mut MoveAnimation>),
-        With<PlayerControlled>,
-    >,
+    mut players: Query<(Entity, &mut TileCoordinate), With<PlayerControlled>>,
     mut left: EventReader<Left>,
     mut right: EventReader<Right>,
     mut up: EventReader<Up>,
@@ -119,84 +114,61 @@ fn handle_input(
     for _ in left.read() {
         debug!("handle left input");
 
-        for (e, tc, a) in players.iter_mut() {
+        for (e, tc) in players.iter_mut() {
+            // TODO: check for movement here
             let start = tc.clone();
             let mut end = tc.clone();
             end.x = tc.x - 1;
-            if let Some(mut animation) = a {
-                animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = start;
-                animation.end = end;
-            } else {
-                commands.entity(e).insert(MoveAnimation {
-                    start,
-                    end,
-                    ..default()
-                });
-            }
+            commands.entity(e).insert(MoveAnimation {
+                start,
+                end,
+                ..default()
+            });
         }
     }
 
     for _ in right.read() {
         debug!("handle right input");
 
-        for (e, tc, a) in players.iter_mut() {
+        for (e, tc) in players.iter_mut() {
             let start = tc.clone();
             let mut end = tc.clone();
             end.x = tc.x + 1;
-            if let Some(mut animation) = a {
-                animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = start;
-                animation.end = end;
-            } else {
-                commands.entity(e).insert(MoveAnimation {
-                    start,
-                    end,
-                    ..default()
-                });
-            }
+            commands.entity(e).insert(MoveAnimation {
+                start,
+                end,
+                ..default()
+            });
         }
     }
 
     for _ in up.read() {
         debug!("handle up input");
 
-        for (e, tc, a) in players.iter_mut() {
+        for (e, tc) in players.iter_mut() {
             let start = tc.clone();
             let mut end = tc.clone();
             end.y = tc.y + 1;
-            if let Some(mut animation) = a {
-                animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = start;
-                animation.end = end;
-            } else {
-                commands.entity(e).insert(MoveAnimation {
-                    start,
-                    end,
-                    ..default()
-                });
-            }
+            commands.entity(e).insert(MoveAnimation {
+                start,
+                end,
+                ..default()
+            });
         }
     }
 
     for _ in down.read() {
         debug!("handle up input");
 
-        for (e, tc, a) in players.iter_mut() {
+        for (e, tc) in players.iter_mut() {
             let start = tc.clone();
             let mut end = tc.clone();
             end.y = tc.y - 1;
-            if let Some(mut animation) = a {
-                animation.timer = Timer::new(Duration::from_millis(ANIM_DURATION), TimerMode::Once);
-                animation.start = start;
-                animation.end = end;
-            } else {
-                commands.entity(e).insert(MoveAnimation {
-                    start,
-                    end,
-                    ..default()
-                });
-            }
+            commands.entity(e).insert(MoveAnimation {
+                start,
+                end,
+                ..default()
+            });
         }
     }
 }

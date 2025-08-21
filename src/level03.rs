@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::app::Plugin;
 
 use AppState::{MainMenu, Running};
@@ -5,10 +7,12 @@ use LevelState::Level03;
 use bevy::prelude::*;
 
 use crate::{
+    animation::{Animation, AnimationType},
     app_states::{AppState, LevelState},
-    controls::PlayerControlled,
-    sprites::{ExfilSprite, MySprite, SpawnSprite, Tile},
+    controls::{Down, Left, PlayerControlled, Right, Up},
+    sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
     tiles::TileCoordinate,
+    tutorial::{Tutorial, TutorialCountdown},
 };
 
 // Constants
@@ -22,7 +26,12 @@ impl Plugin for Level03Plugin {
         app.add_systems(OnEnter(Level03), start_level03)
             .add_systems(
                 Update,
-                (update_level03, check_for_exit_level03)
+                (
+                    update_level03,
+                    added_tutorial_components,
+                    countdown_tutorial,
+                    check_for_exit_level03,
+                )
                     .run_if(in_state(Running))
                     .run_if(in_state(Level03)),
             )
@@ -42,21 +51,111 @@ fn start_level03(mut spawn_sprite: EventWriter<SpawnSprite>) {
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 0, y: 0, z: 0 },
-        tile: Tile::Player01,
+        tile: SpriteSheetTile::Player01,
         color: Some(Color::linear_rgb(0.5, 0.5, 0.5)),
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 1, y: 2, z: 3 },
-        tile: Tile::LevelExit01,
+        tile: SpriteSheetTile::LevelExit01,
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 1, y: 1, z: 3 },
+        tile: SpriteSheetTile::BrickWall01,
+        tutorial: true,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 0, y: 1, z: 3 },
+        tile: SpriteSheetTile::BrickWall01,
+        tutorial: true,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 2, y: 1, z: 3 },
+        tile: SpriteSheetTile::BrickWall01,
+        tutorial: true,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 0, y: 2, z: 3 },
+        tile: SpriteSheetTile::BrickWall01,
+        tutorial: true,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 2, y: 2, z: 3 },
+        tile: SpriteSheetTile::BrickWall01,
+        tutorial: true,
         ..default()
     });
 }
 
 fn update_level03() {
     debug!("updating {}", NAME);
+}
+
+fn added_tutorial_components(
+    mut commands: Commands,
+    added_tutorials: Query<Entity, Added<Tutorial>>,
+) {
+    for added in added_tutorials.iter() {
+        commands.entity(added).insert(TutorialCountdown::new(0));
+        commands.entity(added).insert((
+            Animation::new(
+                Timer::new(Duration::from_millis(400), TimerMode::Once),
+                EaseFunction::SineInOut,
+            ),
+            AnimationType::Pulse,
+        ));
+    }
+}
+
+fn countdown_tutorial(
+    mut commands: Commands,
+    mut right: EventReader<Right>,
+    mut left: EventReader<Left>,
+    mut up: EventReader<Up>,
+    mut down: EventReader<Down>,
+    countdowns: Query<Entity, With<Tutorial>>,
+) {
+    let mut countdown = false;
+    for _ in right.read() {
+        countdown = true;
+    }
+
+    for _ in left.read() {
+        countdown = true;
+    }
+
+    for _ in up.read() {
+        countdown = true;
+    }
+
+    for _ in down.read() {
+        countdown = true;
+    }
+
+    if countdown {
+        for c in countdowns.iter() {
+            // pulse on every step
+            commands.entity(c).insert((
+                Animation::new(
+                    Timer::new(Duration::from_millis(100), TimerMode::Once),
+                    EaseFunction::SineInOut,
+                ),
+                AnimationType::Pulse,
+            ));
+        }
+    }
 }
 
 fn check_for_exit_level03(

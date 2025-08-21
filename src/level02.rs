@@ -11,7 +11,7 @@ use crate::{
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
     gold::PlayerPickedUpGoldCoins,
-    sprites::{ExfilSprite, MySprite, SpawnSprite, Tile},
+    sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
     tiles::TileCoordinate,
     tutorial::Tutorial,
 };
@@ -52,53 +52,53 @@ fn start_level02(mut spawn_sprite: EventWriter<SpawnSprite>) {
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 0, y: 0, z: 0 },
-        tile: Tile::Player01,
+        tile: SpriteSheetTile::Player01,
         color: Some(Color::linear_rgb(0.5, 0.5, 0.5)),
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 1, y: 0, z: 1 },
-        tile: Tile::LevelExit01,
+        tile: SpriteSheetTile::LevelExit01,
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 2, y: 1, z: -1 },
-        tile: Tile::Grass,
+        tile: SpriteSheetTile::Grass,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 1, y: 1, z: -1 },
-        tile: Tile::GrassFlowers,
+        tile: SpriteSheetTile::GrassFlowers,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 0, y: 1, z: -1 },
-        tile: Tile::LongGrass,
+        tile: SpriteSheetTile::LongGrass,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 0, y: -2, z: -1 },
-        tile: Tile::GoldCoin,
+        tile: SpriteSheetTile::GoldCoin,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 2, y: -2, z: -1 },
-        tile: Tile::GoldCoins,
+        tile: SpriteSheetTile::GoldCoins,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 4, y: -2, z: -1 },
-        tile: Tile::GoldCoinBag,
+        tile: SpriteSheetTile::GoldCoinBag,
         tutorial: true,
         ..default()
     });

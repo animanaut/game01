@@ -3,7 +3,13 @@ use std::{fmt::Display, time::Duration};
 use bevy::app::Plugin;
 use log::debug;
 
-use crate::{AppState::Running, controls::PlayerControlled, gold::Gold, tutorial::Tutorial};
+use crate::{
+    AppState::Running,
+    controls::PlayerControlled,
+    gold::Gold,
+    tiles::{FloorTile, SolidTile, Tile},
+    tutorial::Tutorial,
+};
 use bevy::prelude::*;
 
 use crate::tiles::TileCoordinate;
@@ -24,7 +30,7 @@ pub const ANIM_DURATION: u64 = 200;
 // Enums
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash)]
 #[allow(dead_code)]
-pub enum Tile {
+pub enum SpriteSheetTile {
     // creature sprites
     Player01,
     // exit tiles
@@ -34,6 +40,8 @@ pub enum Tile {
     Grass,
     GrassFlowers,
     LongGrass,
+    // walls
+    BrickWall01,
     // valuables
     GoldCoin,
     GoldCoins,
@@ -50,25 +58,26 @@ pub enum Tile {
     DownDigiPadRound,
 }
 
-impl Tile {
+impl SpriteSheetTile {
     fn index(&self) -> usize {
         match self {
-            Tile::Player01 => Tile::get_index(30, 9),
-            Tile::LevelExit01 => Tile::get_index(2, 9),
-            Tile::Grass => Tile::get_index(5, 0),
-            Tile::GrassFlowers => Tile::get_index(6, 0),
-            Tile::LongGrass => Tile::get_index(7, 0),
-            Tile::GoldCoin => Tile::get_index(41, 3),
-            Tile::GoldCoins => Tile::get_index(41, 4),
-            Tile::GoldCoinBag => Tile::get_index(42, 4),
-            Tile::A => Tile::get_index(35, 18),
-            Tile::D => Tile::get_index(38, 18),
-            Tile::S => Tile::get_index(40, 19),
-            Tile::W => Tile::get_index(44, 19),
-            Tile::LeftDigiPadRound => Tile::get_index(47, 11),
-            Tile::RightDigiPadRound => Tile::get_index(45, 11),
-            Tile::UpDigiPadRound => Tile::get_index(44, 11),
-            Tile::DownDigiPadRound => Tile::get_index(46, 11),
+            SpriteSheetTile::Player01 => SpriteSheetTile::get_index(30, 9),
+            SpriteSheetTile::LevelExit01 => SpriteSheetTile::get_index(2, 9),
+            SpriteSheetTile::Grass => SpriteSheetTile::get_index(5, 0),
+            SpriteSheetTile::GrassFlowers => SpriteSheetTile::get_index(6, 0),
+            SpriteSheetTile::LongGrass => SpriteSheetTile::get_index(7, 0),
+            SpriteSheetTile::BrickWall01 => SpriteSheetTile::get_index(10, 17),
+            SpriteSheetTile::GoldCoin => SpriteSheetTile::get_index(41, 3),
+            SpriteSheetTile::GoldCoins => SpriteSheetTile::get_index(41, 4),
+            SpriteSheetTile::GoldCoinBag => SpriteSheetTile::get_index(42, 4),
+            SpriteSheetTile::A => SpriteSheetTile::get_index(35, 18),
+            SpriteSheetTile::D => SpriteSheetTile::get_index(38, 18),
+            SpriteSheetTile::S => SpriteSheetTile::get_index(40, 19),
+            SpriteSheetTile::W => SpriteSheetTile::get_index(44, 19),
+            SpriteSheetTile::LeftDigiPadRound => SpriteSheetTile::get_index(47, 11),
+            SpriteSheetTile::RightDigiPadRound => SpriteSheetTile::get_index(45, 11),
+            SpriteSheetTile::UpDigiPadRound => SpriteSheetTile::get_index(44, 11),
+            SpriteSheetTile::DownDigiPadRound => SpriteSheetTile::get_index(46, 11),
         }
     }
 
@@ -78,13 +87,14 @@ impl Tile {
 
     fn color(&self) -> Color {
         match self {
-            Tile::LevelExit01 => Color::linear_rgb(0.0, 1.0, 1.0),
-            Tile::Grass => Color::linear_rgb(0.0, 1.0, 0.0),
-            Tile::GrassFlowers => Color::linear_rgb(0.2, 1.0, 0.2),
-            Tile::LongGrass => Color::linear_rgb(0.0, 8.0, 0.0),
-            Tile::GoldCoin => Color::linear_rgb(0.6, 0.6, 0.0),
-            Tile::GoldCoins => Color::linear_rgb(0.6, 0.6, 0.0),
-            Tile::GoldCoinBag => Color::linear_rgb(0.6, 0.6, 0.0),
+            SpriteSheetTile::LevelExit01 => Color::linear_rgb(0.0, 1.0, 1.0),
+            SpriteSheetTile::Grass => Color::linear_rgb(0.0, 1.0, 0.0),
+            SpriteSheetTile::GrassFlowers => Color::linear_rgb(0.2, 1.0, 0.2),
+            SpriteSheetTile::LongGrass => Color::linear_rgb(0.0, 1.0, 0.0),
+            SpriteSheetTile::BrickWall01 => Color::linear_rgb(0.5, 0.1, 0.1),
+            SpriteSheetTile::GoldCoin => Color::linear_rgb(0.6, 0.6, 0.0),
+            SpriteSheetTile::GoldCoins => Color::linear_rgb(0.6, 0.6, 0.0),
+            SpriteSheetTile::GoldCoinBag => Color::linear_rgb(0.6, 0.6, 0.0),
             _ => Color::default(),
         }
     }
@@ -163,7 +173,7 @@ pub struct MoveAnimationFinished(Entity);
 #[derive(Event, Default)]
 pub struct SpawnSprite {
     pub coordinate: TileCoordinate,
-    pub tile: Tile,
+    pub tile: SpriteSheetTile,
     /// custom color, will override defaults
     pub color: Option<Color>,
     pub tutorial: bool,
@@ -235,20 +245,37 @@ fn spawn_sprite(
 
         // custom marker components
         match spawn_sprite.tile {
-            Tile::LevelExit01 => {
+            SpriteSheetTile::LevelExit01 => {
                 commands.entity(new_sprite).insert(ExfilSprite);
+                commands.entity(new_sprite).insert(Tile);
             }
-            Tile::Player01 => {
+            SpriteSheetTile::Player01 => {
                 commands.entity(new_sprite).insert(PlayerControlled);
             }
-            Tile::GoldCoin => {
+            SpriteSheetTile::GoldCoin => {
                 commands.entity(new_sprite).insert(Gold { coins: 1 });
             }
-            Tile::GoldCoins => {
+            SpriteSheetTile::GoldCoins => {
                 commands.entity(new_sprite).insert(Gold { coins: 5 });
             }
-            Tile::GoldCoinBag => {
+            SpriteSheetTile::GoldCoinBag => {
                 commands.entity(new_sprite).insert(Gold { coins: 25 });
+            }
+            SpriteSheetTile::BrickWall01 => {
+                commands.entity(new_sprite).insert(SolidTile);
+                commands.entity(new_sprite).insert(Tile);
+            }
+            SpriteSheetTile::Grass => {
+                commands.entity(new_sprite).insert(Tile);
+                commands.entity(new_sprite).insert(FloorTile);
+            }
+            SpriteSheetTile::GrassFlowers => {
+                commands.entity(new_sprite).insert(Tile);
+                commands.entity(new_sprite).insert(FloorTile);
+            }
+            SpriteSheetTile::LongGrass => {
+                commands.entity(new_sprite).insert(Tile);
+                commands.entity(new_sprite).insert(FloorTile);
             }
             _ => (),
         }

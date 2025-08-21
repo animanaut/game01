@@ -17,7 +17,7 @@ use crate::tutorial::TutorialCountdown;
 use crate::{
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
-    sprites::{ExfilSprite, MySprite, SpawnSprite, Tile},
+    sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
     tiles::TileCoordinate,
 };
 
@@ -58,7 +58,7 @@ fn start_level01(mut spawn_sprite: EventWriter<SpawnSprite>) {
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 0, y: 0, z: 0 },
-        tile: Tile::Player01,
+        tile: SpriteSheetTile::Player01,
         ..default()
     });
 
@@ -93,35 +93,35 @@ fn start_level01(mut spawn_sprite: EventWriter<SpawnSprite>) {
     */
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: -3, y: 0, z: 1 },
-        tile: Tile::A,
+        tile: SpriteSheetTile::A,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 3, y: 0, z: 1 },
-        tile: Tile::D,
+        tile: SpriteSheetTile::D,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: -2, y: 1, z: 1 },
-        tile: Tile::W,
+        tile: SpriteSheetTile::W,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: -2, y: -1, z: 1 },
-        tile: Tile::S,
+        tile: SpriteSheetTile::S,
         tutorial: true,
         ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 2, y: 0, z: -1 },
-        tile: Tile::LevelExit01,
+        tile: SpriteSheetTile::LevelExit01,
         ..default()
     });
 }

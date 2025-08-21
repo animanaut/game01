@@ -25,8 +25,10 @@ impl Plugin for TilesPlugin {
 }
 
 // Components
+/// Tile vs Sprites. Tiles have sprites as a representations, but a sprite can exist alone.
+/// Tiles should be seen as level elements like walls/floors, while players enemies, valuables are
+/// just sprites.
 #[derive(Component)]
-#[allow(dead_code)]
 pub struct Tile;
 
 #[derive(Component, PartialEq, Clone, Default)]
@@ -68,6 +70,13 @@ impl From<TileCoordinate> for Transform {
         Transform::from_scale(Vec3::splat(SPRITE_SCALE)).with_translation(val.clone().into())
     }
 }
+
+/// marker for solid tiles like walls
+#[derive(Component)]
+pub struct SolidTile;
+
+#[derive(Component)]
+pub struct FloorTile;
 
 // Resources
 
