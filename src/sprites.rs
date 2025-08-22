@@ -7,7 +7,7 @@ use crate::{
     AppState::Running,
     controls::PlayerControlled,
     gold::Gold,
-    tiles::{FloorTile, SolidTile, Tile},
+    tiles::{FloorTile, InteractableTile, SolidTile, Tile},
     tutorial::Tutorial,
 };
 use bevy::prelude::*;
@@ -41,6 +41,9 @@ pub enum SpriteSheetTile {
     OpenDoor,
     RegularDoor,
     MechanicDoor,
+    // trigger
+    BottomLeverLeft,
+    BottomLeverRight,
     // floor tiles
     #[default]
     Grass,
@@ -74,6 +77,8 @@ impl SpriteSheetTile {
             SpriteSheetTile::OpenDoor => SpriteSheetTile::get_index(2, 9),
             SpriteSheetTile::RegularDoor => SpriteSheetTile::get_index(3, 9),
             SpriteSheetTile::MechanicDoor => SpriteSheetTile::get_index(4, 9),
+            SpriteSheetTile::BottomLeverLeft => SpriteSheetTile::get_index(3, 10),
+            SpriteSheetTile::BottomLeverRight => SpriteSheetTile::get_index(4, 10),
             SpriteSheetTile::Grass => SpriteSheetTile::get_index(5, 0),
             SpriteSheetTile::GrassFlowers => SpriteSheetTile::get_index(6, 0),
             SpriteSheetTile::LongGrass => SpriteSheetTile::get_index(7, 0),
@@ -262,6 +267,30 @@ fn spawn_sprite(
             }
             SpriteSheetTile::Player01 => {
                 commands.entity(new_sprite).insert(PlayerControlled);
+            }
+            SpriteSheetTile::LockedDoor => {
+                commands.entity(new_sprite).insert(SolidTile);
+                commands.entity(new_sprite).insert(InteractableTile);
+            }
+            SpriteSheetTile::MagicDoor => {
+                commands.entity(new_sprite).insert(SolidTile);
+                commands.entity(new_sprite).insert(InteractableTile);
+            }
+            SpriteSheetTile::MechanicDoor => {
+                commands.entity(new_sprite).insert(SolidTile);
+                commands.entity(new_sprite).insert(InteractableTile);
+            }
+            SpriteSheetTile::RegularDoor => {
+                commands.entity(new_sprite).insert(SolidTile);
+                commands.entity(new_sprite).insert(InteractableTile);
+            }
+            SpriteSheetTile::BottomLeverLeft => {
+                commands.entity(new_sprite).insert(SolidTile);
+                commands.entity(new_sprite).insert(InteractableTile);
+            }
+            SpriteSheetTile::BottomLeverRight => {
+                commands.entity(new_sprite).insert(SolidTile);
+                commands.entity(new_sprite).insert(InteractableTile);
             }
             SpriteSheetTile::GoldCoin => {
                 commands.entity(new_sprite).insert(Gold { coins: 1 });

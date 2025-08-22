@@ -13,7 +13,7 @@ use crate::{
     in_game::LevelFinished,
     sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
     tiles::TileCoordinate,
-    tutorial::{Tutorial, TutorialCountdown},
+    tutorial::{CountDownFinished, CountDownTutorialCounter, Tutorial, TutorialCountdown},
 };
 
 // Constants
@@ -24,7 +24,11 @@ pub struct Level04Plugin;
 
 impl Plugin for Level04Plugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Level04), start_level04)
+        app
+            // events
+            // ...
+            // systems
+            .add_systems(OnEnter(Level04), start_level04)
             .add_systems(
                 Update,
                 (
@@ -33,6 +37,13 @@ impl Plugin for Level04Plugin {
                     countdown_tutorial,
                     check_for_exit_level04,
                 )
+                    .run_if(in_state(Running))
+                    .run_if(in_state(Level04)),
+            )
+            .add_systems(
+                Update,
+                (countdown_tutorial_finished)
+                    .run_if(on_event::<CountDownFinished>)
                     .run_if(in_state(Running))
                     .run_if(in_state(Level04)),
             )
@@ -58,9 +69,24 @@ fn start_level04(mut spawn_sprite: EventWriter<SpawnSprite>) {
     });
 
     spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 1, y: 2, z: 3 },
+        coordinate: TileCoordinate { x: 2, y: 1, z: 0 },
+        tile: SpriteSheetTile::MechanicDoor,
+        color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
+        tutorial: true,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 2, y: 2, z: 0 },
         tile: SpriteSheetTile::LevelExit01,
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: -2, y: 1, z: 0 },
+        tile: SpriteSheetTile::BottomLeverLeft,
+        tutorial: true,
         ..default()
     });
 }
@@ -74,7 +100,7 @@ fn added_tutorial_components(
     added_tutorials: Query<Entity, Added<Tutorial>>,
 ) {
     for added in added_tutorials.iter() {
-        commands.entity(added).insert(TutorialCountdown::new(0));
+        commands.entity(added).insert(TutorialCountdown::new(3));
         commands.entity(added).insert((
             Animation::new(
                 Timer::new(Duration::from_millis(400), TimerMode::Once),
@@ -92,6 +118,7 @@ fn countdown_tutorial(
     mut up: EventReader<Up>,
     mut down: EventReader<Down>,
     countdowns: Query<Entity, With<Tutorial>>,
+    mut tutorial_countdown: EventWriter<CountDownTutorialCounter>,
 ) {
     let mut countdown = false;
     for _ in right.read() {
@@ -112,7 +139,7 @@ fn countdown_tutorial(
 
     if countdown {
         for c in countdowns.iter() {
-            // pulse on every step
+            tutorial_countdown.write(CountDownTutorialCounter(c));
             commands.entity(c).insert((
                 Animation::new(
                     Timer::new(Duration::from_millis(100), TimerMode::Once),
@@ -121,6 +148,16 @@ fn countdown_tutorial(
                 AnimationType::Pulse,
             ));
         }
+    }
+}
+
+fn countdown_tutorial_finished(
+    mut commands: Commands,
+    mut finished: EventReader<CountDownFinished>,
+) {
+    for f in finished.read() {
+        commands.entity(f.0).remove::<Tutorial>();
+        commands.entity(f.0).remove::<TutorialCountdown>();
     }
 }
 
@@ -153,30 +190,3 @@ fn stop_level04(
 }
 
 // helper functions
-
-// tests
-#[cfg(test)]
-mod tests {
-    // Note this useful idiom: importing names from outer (for mod tests) scope.
-    //use super::*;
-    //use std::borrow::BorrowMut;
-
-    /*
-    #[test]
-    fn should_test_something() {
-        // given
-        //let mut app = App::new();
-
-        // when
-        //app.add_event::<HealthDamageReceived>();
-        //app.add_systems(Update, damage_received_listener);
-        //let entity = app.borrow_mut().world().spawn(Health(100)).id();
-        //app.borrow_mut().world().resource_mut::<Events<HealthDamageReceived>>().send(HealthDamageReceived { entity, damage: 10 });
-        //app.update();
-
-        // then
-        //assert!(app.world().get::<Health>(entity).is_some());
-        //assert_eq!(app.world().get::<Health>(entity).unwrap().0, 90);
-    }
-    */
-}
