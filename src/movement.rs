@@ -148,7 +148,8 @@ fn handle_input(
     solid_blocks: Res<SolidTiles>,
     mut moved: EventWriter<MoveTriggered>,
     mut blocked: EventWriter<MoveBlocked>,
-    mut _interacted: EventWriter<InteractionTriggered>,
+    mut interacted: EventWriter<InteractionTriggered>,
+    interaction_tiles: Res<SolidTiles>,
 ) {
     debug!("handle input {}", NAME);
 
@@ -164,6 +165,11 @@ fn handle_input(
                 blocked.write(MoveBlocked {
                     mover,
                     blocked_by: *blocked_by,
+                });
+            } else if let Some(i) = interaction_tiles.map.get(&end) {
+                interacted.write(InteractionTriggered {
+                    triggered_by: mover,
+                    interacted_with: *i,
                 });
             } else {
                 commands.entity(mover).insert(MoveAnimation {
@@ -189,6 +195,11 @@ fn handle_input(
                     mover,
                     blocked_by: *blocked_by,
                 });
+            } else if let Some(i) = interaction_tiles.map.get(&end) {
+                interacted.write(InteractionTriggered {
+                    triggered_by: mover,
+                    interacted_with: *i,
+                });
             } else {
                 commands.entity(mover).insert(MoveAnimation {
                     start: start.clone(),
@@ -213,6 +224,11 @@ fn handle_input(
                     mover,
                     blocked_by: *blocked_by,
                 });
+            } else if let Some(i) = interaction_tiles.map.get(&end) {
+                interacted.write(InteractionTriggered {
+                    triggered_by: mover,
+                    interacted_with: *i,
+                });
             } else {
                 commands.entity(mover).insert(MoveAnimation {
                     start: start.clone(),
@@ -236,6 +252,11 @@ fn handle_input(
                 blocked.write(MoveBlocked {
                     mover,
                     blocked_by: *blocked_by,
+                });
+            } else if let Some(i) = interaction_tiles.map.get(&end) {
+                interacted.write(InteractionTriggered {
+                    triggered_by: mover,
+                    interacted_with: *i,
                 });
             } else {
                 commands.entity(mover).insert(MoveAnimation {
