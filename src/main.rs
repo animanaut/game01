@@ -14,6 +14,7 @@ use tiles::TilesPlugin;
 use crate::animation::AnimationPlugin;
 use crate::game_camera::GameCameraPlugin;
 use crate::gold::GoldPlugin;
+use crate::interaction::InteractionPlugin;
 use crate::level03::Level03Plugin;
 use crate::level04::Level04Plugin;
 use crate::movement::MovementPlugin;
@@ -25,6 +26,7 @@ mod controls;
 mod game_camera;
 mod gold;
 mod in_game;
+mod interaction;
 mod keyboard_controller;
 mod level01;
 mod level02;
@@ -60,14 +62,13 @@ fn main() {
             ControlsPlugin,
             KeyboardControllerPlugin,
             TilesPlugin,
-            Level01Plugin,
-            Level02Plugin,
-            Level03Plugin,
             GameCameraPlugin,
-            GoldPlugin,
             TutorialPlugin,
+            MovementPlugin,
+            GoldPlugin,
+            InteractionPlugin,
         ))
-        .add_plugins((MovementPlugin, Level04Plugin))
+        .add_plugins((Level01Plugin, Level02Plugin, Level03Plugin, Level04Plugin))
         .add_systems(Startup, setup)
         .run();
 }
