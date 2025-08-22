@@ -11,8 +11,9 @@ use crate::{
     app_states::{AppState, LevelState},
     controls::{Down, Left, PlayerControlled, Right, Up},
     in_game::LevelFinished,
+    interaction::{Interacted, InteractionId, InteractionSource, InteractionTarget},
     sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
-    tiles::TileCoordinate,
+    tiles::{DoorTile, InteractableTile, TileCoordinate, TriggerTile},
     tutorial::{CountDownFinished, CountDownTutorialCounter, Tutorial, TutorialCountdown},
 };
 
@@ -34,6 +35,7 @@ impl Plugin for Level04Plugin {
                 (
                     update_level04,
                     added_tutorial_components,
+                    added_interaction_components,
                     countdown_tutorial,
                     check_for_exit_level04,
                 )
@@ -44,6 +46,13 @@ impl Plugin for Level04Plugin {
                 Update,
                 (countdown_tutorial_finished)
                     .run_if(on_event::<CountDownFinished>)
+                    .run_if(in_state(Running))
+                    .run_if(in_state(Level04)),
+            )
+            .add_systems(
+                Update,
+                (interacted)
+                    .run_if(on_event::<Interacted>)
                     .run_if(in_state(Running))
                     .run_if(in_state(Level04)),
             )
@@ -73,14 +82,6 @@ fn start_level04(mut spawn_sprite: EventWriter<SpawnSprite>) {
         tile: SpriteSheetTile::MechanicDoor,
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
         tutorial: true,
-        ..default()
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 2, y: 2, z: 0 },
-        tile: SpriteSheetTile::LevelExit01,
-        color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
-        ..default()
     });
 
     spawn_sprite.write(SpawnSprite {
@@ -93,6 +94,47 @@ fn start_level04(mut spawn_sprite: EventWriter<SpawnSprite>) {
 
 fn update_level04() {
     debug!("updating {}", NAME);
+}
+
+/// nothing fancy, we just have a lever and a door in level04
+fn interacted(
+    mut commands: Commands,
+    mut interacted: EventReader<Interacted>,
+    interactables: Query<(Entity, &InteractableTile)>,
+    mut spawn_sprite: EventWriter<SpawnSprite>,
+) {
+    debug!("interacted {}", NAME);
+    for i in interacted.read() {
+        debug!("interacted {}: have message", NAME);
+        if let Ok((entity, _)) = interactables.get(i.0) {
+            debug!("interacted {}: found target", NAME);
+            commands.entity(entity).despawn();
+            spawn_sprite.write(SpawnSprite {
+                coordinate: TileCoordinate { x: 2, y: 1, z: 0 },
+                tile: SpriteSheetTile::LevelExit01,
+                color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
+                ..default()
+            });
+        }
+    }
+}
+
+fn added_interaction_components(
+    mut commands: Commands,
+    added_doors: Query<Entity, Added<DoorTile>>,
+    added_trigger: Query<Entity, Added<TriggerTile>>,
+) {
+    debug!("added interaction {}", NAME);
+    // simple level: one door, one lever, one id
+    let id = InteractionId(123);
+    if let Ok(door) = added_doors.single() {
+        debug!("added interaction id {:?} to door {}", id, door);
+        commands.entity(door).insert(InteractionTarget(id.clone()));
+    }
+    if let Ok(lever) = added_trigger.single() {
+        debug!("added interaction id {:?} to lever {}", id, lever);
+        commands.entity(lever).insert(InteractionSource(id));
+    }
 }
 
 fn added_tutorial_components(
@@ -155,7 +197,9 @@ fn countdown_tutorial_finished(
     mut commands: Commands,
     mut finished: EventReader<CountDownFinished>,
 ) {
+    debug!("countdown finished {}", NAME);
     for f in finished.read() {
+        debug!("removing tutorial components for {}", f.0);
         commands.entity(f.0).remove::<Tutorial>();
         commands.entity(f.0).remove::<TutorialCountdown>();
     }

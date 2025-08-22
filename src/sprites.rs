@@ -7,7 +7,7 @@ use crate::{
     AppState::Running,
     controls::PlayerControlled,
     gold::Gold,
-    tiles::{FloorTile, InteractableTile, SolidTile, Tile},
+    tiles::{DoorTile, FloorTile, InteractableTile, SolidTile, Tile, TriggerTile},
     tutorial::Tutorial,
 };
 use bevy::prelude::*;
@@ -271,26 +271,35 @@ fn spawn_sprite(
             SpriteSheetTile::LockedDoor => {
                 commands.entity(new_sprite).insert(SolidTile);
                 commands.entity(new_sprite).insert(InteractableTile);
+                commands.entity(new_sprite).insert(DoorTile);
             }
             SpriteSheetTile::MagicDoor => {
                 commands.entity(new_sprite).insert(SolidTile);
                 commands.entity(new_sprite).insert(InteractableTile);
+                commands.entity(new_sprite).insert(DoorTile);
+            }
+            SpriteSheetTile::OpenDoor => {
+                commands.entity(new_sprite).insert(DoorTile);
             }
             SpriteSheetTile::MechanicDoor => {
                 commands.entity(new_sprite).insert(SolidTile);
                 commands.entity(new_sprite).insert(InteractableTile);
+                commands.entity(new_sprite).insert(DoorTile);
             }
             SpriteSheetTile::RegularDoor => {
                 commands.entity(new_sprite).insert(SolidTile);
                 commands.entity(new_sprite).insert(InteractableTile);
+                commands.entity(new_sprite).insert(DoorTile);
             }
             SpriteSheetTile::BottomLeverLeft => {
                 commands.entity(new_sprite).insert(SolidTile);
                 commands.entity(new_sprite).insert(InteractableTile);
+                commands.entity(new_sprite).insert(TriggerTile);
             }
             SpriteSheetTile::BottomLeverRight => {
                 commands.entity(new_sprite).insert(SolidTile);
                 commands.entity(new_sprite).insert(InteractableTile);
+                commands.entity(new_sprite).insert(TriggerTile);
             }
             SpriteSheetTile::GoldCoin => {
                 commands.entity(new_sprite).insert(Gold { coins: 1 });

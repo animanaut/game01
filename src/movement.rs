@@ -32,7 +32,9 @@ impl Plugin for MovementPlugin {
                     handle_input,
                     update_movement,
                     solid_tiles_added,
+                    solid_tiles_removed,
                     interaction_tiles_added,
+                    interaction_tiles_removed,
                 )
                     .run_if(in_state(Running)),
             )
@@ -101,6 +103,7 @@ fn solid_tiles_added(
     added: Query<(Entity, &TileCoordinate), Added<SolidTile>>,
     mut solid_tiles: ResMut<SolidTiles>,
 ) {
+    debug!("solid tiles added {}", NAME);
     for (entity, tile_coordinate) in added.iter() {
         debug!("solid tiles added at {} for {}", tile_coordinate, entity);
         if let Some(overridden) = solid_tiles.map.insert(tile_coordinate.clone(), entity) {
@@ -115,11 +118,34 @@ fn solid_tiles_added(
     }
 }
 
+fn solid_tiles_removed(
+    mut _commands: Commands,
+    mut removed: RemovedComponents<SolidTile>,
+    mut solid_tiles: ResMut<SolidTiles>,
+) {
+    debug!("solid tiles removed {}", NAME);
+    for entity in removed.read() {
+        solid_tiles.map.retain(|_, e| entity.ne(e));
+    }
+}
+
+fn interaction_tiles_removed(
+    mut _commands: Commands,
+    mut removed: RemovedComponents<InteractableTile>,
+    mut interaction_tiles: ResMut<InteractionTiles>,
+) {
+    debug!("interaction tiles removed {}", NAME);
+    for entity in removed.read() {
+        interaction_tiles.map.retain(|_, e| entity.ne(e));
+    }
+}
+
 fn interaction_tiles_added(
     mut _commands: Commands,
     added: Query<(Entity, &TileCoordinate), Added<InteractableTile>>,
     mut interactables: ResMut<InteractionTiles>,
 ) {
+    debug!("interaction tiles added {}", NAME);
     for (entity, tile_coordinate) in added.iter() {
         debug!(
             "interaction tiles added at {} for {}",
@@ -149,7 +175,7 @@ fn handle_input(
     mut moved: EventWriter<MoveTriggered>,
     mut blocked: EventWriter<MoveBlocked>,
     mut interacted: EventWriter<InteractionTriggered>,
-    interaction_tiles: Res<SolidTiles>,
+    interaction_tiles: Res<InteractionTiles>,
 ) {
     debug!("handle input {}", NAME);
 
@@ -161,16 +187,22 @@ fn handle_input(
             let mut end = tc.clone();
             end.x = tc.x - 1;
 
-            if let Some(blocked_by) = solid_blocks.map.get(&end) {
-                blocked.write(MoveBlocked {
-                    mover,
-                    blocked_by: *blocked_by,
-                });
-            } else if let Some(i) = interaction_tiles.map.get(&end) {
+            if let Some(i) = interaction_tiles.map.get(&end) {
+                debug!("handle left interaction input: {:?}", interaction_tiles.map);
                 interacted.write(InteractionTriggered {
                     triggered_by: mover,
                     interacted_with: *i,
                 });
+                debug!("handle left interaction input: event sent");
+            }
+
+            if let Some(b) = solid_blocks.map.get(&end) {
+                debug!("handle left blocking input: {:?}", solid_blocks.map);
+                blocked.write(MoveBlocked {
+                    mover,
+                    blocked_by: *b,
+                });
+                debug!("handle left blocking input: event sent");
             } else {
                 commands.entity(mover).insert(MoveAnimation {
                     start: start.clone(),
@@ -190,15 +222,17 @@ fn handle_input(
             let mut end = tc.clone();
             end.x = tc.x + 1;
 
+            if let Some(i) = interaction_tiles.map.get(&end) {
+                interacted.write(InteractionTriggered {
+                    triggered_by: mover,
+                    interacted_with: *i,
+                });
+            }
+
             if let Some(blocked_by) = solid_blocks.map.get(&end) {
                 blocked.write(MoveBlocked {
                     mover,
                     blocked_by: *blocked_by,
-                });
-            } else if let Some(i) = interaction_tiles.map.get(&end) {
-                interacted.write(InteractionTriggered {
-                    triggered_by: mover,
-                    interacted_with: *i,
                 });
             } else {
                 commands.entity(mover).insert(MoveAnimation {
@@ -219,15 +253,17 @@ fn handle_input(
             let mut end = tc.clone();
             end.y = tc.y + 1;
 
+            if let Some(i) = interaction_tiles.map.get(&end) {
+                interacted.write(InteractionTriggered {
+                    triggered_by: mover,
+                    interacted_with: *i,
+                });
+            }
+
             if let Some(blocked_by) = solid_blocks.map.get(&end) {
                 blocked.write(MoveBlocked {
                     mover,
                     blocked_by: *blocked_by,
-                });
-            } else if let Some(i) = interaction_tiles.map.get(&end) {
-                interacted.write(InteractionTriggered {
-                    triggered_by: mover,
-                    interacted_with: *i,
                 });
             } else {
                 commands.entity(mover).insert(MoveAnimation {
@@ -248,15 +284,17 @@ fn handle_input(
             let mut end = tc.clone();
             end.y = tc.y - 1;
 
+            if let Some(i) = interaction_tiles.map.get(&end) {
+                interacted.write(InteractionTriggered {
+                    triggered_by: mover,
+                    interacted_with: *i,
+                });
+            }
+
             if let Some(blocked_by) = solid_blocks.map.get(&end) {
                 blocked.write(MoveBlocked {
                     mover,
                     blocked_by: *blocked_by,
-                });
-            } else if let Some(i) = interaction_tiles.map.get(&end) {
-                interacted.write(InteractionTriggered {
-                    triggered_by: mover,
-                    interacted_with: *i,
                 });
             } else {
                 commands.entity(mover).insert(MoveAnimation {
