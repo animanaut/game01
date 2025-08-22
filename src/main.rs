@@ -15,6 +15,7 @@ use crate::animation::AnimationPlugin;
 use crate::game_camera::GameCameraPlugin;
 use crate::gold::GoldPlugin;
 use crate::level03::Level03Plugin;
+use crate::level04::Level04Plugin;
 use crate::movement::MovementPlugin;
 use crate::tutorial::TutorialPlugin;
 
@@ -28,6 +29,7 @@ mod keyboard_controller;
 mod level01;
 mod level02;
 mod level03;
+mod level04;
 mod main_menu;
 mod movement;
 mod splash;
@@ -65,7 +67,7 @@ fn main() {
             GoldPlugin,
             TutorialPlugin,
         ))
-        .add_plugins((MovementPlugin,))
+        .add_plugins((MovementPlugin, Level04Plugin))
         .add_systems(Startup, setup)
         .run();
 }

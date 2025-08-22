@@ -19,7 +19,12 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Running), start_movement)
+        app
+            // events
+            .add_event::<MoveBlocked>()
+            .add_event::<Interacted>()
+            // systems
+            .add_systems(OnEnter(Running), start_movement)
             .add_systems(
                 Update,
                 (handle_input, update_movement, solid_tiles_added).run_if(in_state(Running)),
@@ -46,6 +51,25 @@ struct SolidTiles {
 }
 
 // Events
+#[derive(Event)]
+#[allow(dead_code)]
+pub struct PlayerMoved;
+
+/// player move blocked by an entity
+#[derive(Event)]
+#[allow(dead_code)]
+pub struct MoveBlocked {
+    pub mover: Entity,
+    pub blocked_by: Entity,
+}
+
+/// player interacted with an entity
+#[derive(Event)]
+#[allow(dead_code)]
+pub struct Interacted {
+    pub triggered_by: Entity,
+    pub interacted_with: Entity,
+}
 
 // Systems
 fn start_movement(mut commands: Commands) {
@@ -85,19 +109,26 @@ fn handle_input(
     mut up: EventReader<Up>,
     mut down: EventReader<Down>,
     solid_blocks: Res<SolidTiles>,
+    mut blocked: EventWriter<MoveBlocked>,
+    mut _interacted: EventWriter<Interacted>,
 ) {
     debug!("handle input {}", NAME);
 
     for _ in left.read() {
         debug!("handle left input");
 
-        for (e, tc) in players.iter_mut() {
+        for (mover, tc) in players.iter_mut() {
             let start = tc.clone();
             let mut end = tc.clone();
             end.x = tc.x - 1;
 
-            if solid_blocks.map.get(&end).is_none() {
-                commands.entity(e).insert(MoveAnimation {
+            if let Some(blocked_by) = solid_blocks.map.get(&end) {
+                blocked.write(MoveBlocked {
+                    mover,
+                    blocked_by: *blocked_by,
+                });
+            } else {
+                commands.entity(mover).insert(MoveAnimation {
                     start,
                     end,
                     ..default()

@@ -2,8 +2,8 @@ use std::time::Duration;
 
 use bevy::app::Plugin;
 
-use AppState::Running;
-use LevelState::{Level03, Level04};
+use AppState::{MainMenu, Running};
+use LevelState::Level04;
 use bevy::prelude::*;
 
 use crate::{
@@ -17,26 +17,26 @@ use crate::{
 };
 
 // Constants
-const NAME: &str = "level03";
+const NAME: &str = "level04";
 
 // Plugin
-pub struct Level03Plugin;
+pub struct Level04Plugin;
 
-impl Plugin for Level03Plugin {
+impl Plugin for Level04Plugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(Level03), start_level03)
+        app.add_systems(OnEnter(Level04), start_level04)
             .add_systems(
                 Update,
                 (
-                    update_level03,
+                    update_level04,
                     added_tutorial_components,
                     countdown_tutorial,
-                    check_for_exit_level03,
+                    check_for_exit_level04,
                 )
                     .run_if(in_state(Running))
-                    .run_if(in_state(Level03)),
+                    .run_if(in_state(Level04)),
             )
-            .add_systems(OnExit(Level03), stop_level03);
+            .add_systems(OnExit(Level04), stop_level04);
     }
 }
 
@@ -47,7 +47,7 @@ impl Plugin for Level03Plugin {
 // Events
 
 // Systems
-fn start_level03(mut spawn_sprite: EventWriter<SpawnSprite>) {
+fn start_level04(mut spawn_sprite: EventWriter<SpawnSprite>) {
     debug!("starting {}", NAME);
 
     spawn_sprite.write(SpawnSprite {
@@ -63,44 +63,9 @@ fn start_level03(mut spawn_sprite: EventWriter<SpawnSprite>) {
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
         ..default()
     });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 1, y: 1, z: 0 },
-        tile: SpriteSheetTile::BrickWall01,
-        tutorial: true,
-        ..default()
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 0, y: 1, z: 0 },
-        tile: SpriteSheetTile::BrickWall01,
-        tutorial: true,
-        ..default()
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 2, y: 1, z: 0 },
-        tile: SpriteSheetTile::BrickWall01,
-        tutorial: true,
-        ..default()
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 0, y: 2, z: 0 },
-        tile: SpriteSheetTile::BrickWall01,
-        tutorial: true,
-        ..default()
-    });
-
-    spawn_sprite.write(SpawnSprite {
-        coordinate: TileCoordinate { x: 2, y: 2, z: 0 },
-        tile: SpriteSheetTile::BrickWall01,
-        tutorial: true,
-        ..default()
-    });
 }
 
-fn update_level03() {
+fn update_level04() {
     debug!("updating {}", NAME);
 }
 
@@ -159,8 +124,8 @@ fn countdown_tutorial(
     }
 }
 
-fn check_for_exit_level03(
-    mut next_state: ResMut<NextState<LevelState>>,
+fn check_for_exit_level04(
+    mut next_state: ResMut<NextState<AppState>>,
     players: Query<&TileCoordinate, (With<PlayerControlled>, Without<ExfilSprite>)>,
     exfils: Query<&TileCoordinate, (With<ExfilSprite>, Without<PlayerControlled>)>,
 ) {
@@ -169,13 +134,13 @@ fn check_for_exit_level03(
         for exfil_coordinate in exfils.iter() {
             if player_coordinate.eq2d(exfil_coordinate) {
                 // TODO: smoother transition, maybe with animation on an event
-                next_state.set(Level04);
+                next_state.set(MainMenu);
             }
         }
     }
 }
 
-fn stop_level03(
+fn stop_level04(
     mut commands: Commands,
     sprites: Query<Entity, With<MySprite>>,
     mut finished: EventWriter<LevelFinished>,

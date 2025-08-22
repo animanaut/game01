@@ -78,6 +78,10 @@ pub struct SolidTile;
 #[derive(Component)]
 pub struct FloorTile;
 
+#[derive(Component)]
+#[allow(dead_code)]
+pub struct InteractableTile;
+
 // Resources
 
 // Events

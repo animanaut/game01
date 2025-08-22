@@ -35,6 +35,12 @@ pub enum SpriteSheetTile {
     Player01,
     // exit tiles
     LevelExit01,
+    // doors
+    LockedDoor,
+    MagicDoor,
+    OpenDoor,
+    RegularDoor,
+    MechanicDoor,
     // floor tiles
     #[default]
     Grass,
@@ -63,6 +69,11 @@ impl SpriteSheetTile {
         match self {
             SpriteSheetTile::Player01 => SpriteSheetTile::get_index(30, 9),
             SpriteSheetTile::LevelExit01 => SpriteSheetTile::get_index(2, 9),
+            SpriteSheetTile::LockedDoor => SpriteSheetTile::get_index(0, 9),
+            SpriteSheetTile::MagicDoor => SpriteSheetTile::get_index(1, 9),
+            SpriteSheetTile::OpenDoor => SpriteSheetTile::get_index(2, 9),
+            SpriteSheetTile::RegularDoor => SpriteSheetTile::get_index(3, 9),
+            SpriteSheetTile::MechanicDoor => SpriteSheetTile::get_index(4, 9),
             SpriteSheetTile::Grass => SpriteSheetTile::get_index(5, 0),
             SpriteSheetTile::GrassFlowers => SpriteSheetTile::get_index(6, 0),
             SpriteSheetTile::LongGrass => SpriteSheetTile::get_index(7, 0),
