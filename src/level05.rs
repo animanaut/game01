@@ -29,7 +29,6 @@ impl Plugin for Level05Plugin {
             .add_systems(
                 Update,
                 (
-                    update_level05,
                     added_player_controlled,
                     added_tutorial_components,
                     check_for_exit_level05,
@@ -176,10 +175,6 @@ fn added_tutorial_components(
             AnimationType::Pulse,
         ));
     }
-}
-
-fn update_level05() {
-    debug!("updating {}", NAME);
 }
 
 fn check_for_exit_level05(
