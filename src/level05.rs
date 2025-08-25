@@ -10,10 +10,10 @@ use crate::{
     animation::{Animation, AnimationType},
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
-    health::{Health, Hearts},
+    health::{Health, Hearts, PickedUpHearts},
     in_game::LevelFinished,
     sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
-    tiles::TileCoordinate,
+    tiles::{DoorTile, TileCoordinate},
     tutorial::Tutorial,
 };
 
@@ -35,6 +35,12 @@ impl Plugin for Level05Plugin {
                     check_for_exit_level05,
                 )
                     .run_if(in_state(Running))
+                    .run_if(in_state(Level05)),
+            )
+            .add_systems(
+                Update,
+                (picked_up_heart,)
+                    .run_if(on_event::<PickedUpHearts>)
                     .run_if(in_state(Level05)),
             )
             .add_systems(OnExit(Level05), stop_level05);
@@ -90,7 +96,7 @@ fn start_level05(mut spawn_sprite: EventWriter<SpawnSprite>) {
 
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 2, y: 1, z: 0 },
-        tile: SpriteSheetTile::LevelExit01,
+        tile: SpriteSheetTile::MagicDoor,
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
         ..default()
     });
@@ -112,6 +118,24 @@ fn added_player_controlled(
             hearts: Hearts(1),
             max: Hearts(2),
         });
+    }
+}
+
+fn picked_up_heart(
+    mut commands: Commands,
+    mut pickups: EventReader<PickedUpHearts>,
+    doors: Query<Entity, With<DoorTile>>,
+    mut spawn_sprite: EventWriter<SpawnSprite>,
+) {
+    for _ in pickups.read() {
+        if let Ok(door) = doors.single() {
+            commands.entity(door).despawn();
+            spawn_sprite.write(SpawnSprite {
+                coordinate: TileCoordinate { x: 2, y: 1, z: 0 },
+                tile: SpriteSheetTile::LevelExit01,
+                ..default()
+            });
+        }
     }
 }
 
