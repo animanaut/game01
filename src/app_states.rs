@@ -23,6 +23,7 @@ pub enum LevelState {
     Level02,
     Level03,
     Level04,
+    Level05,
 }
 
 // Plugin

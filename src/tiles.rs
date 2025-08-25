@@ -81,9 +81,12 @@ pub struct FloorTile;
 #[derive(Component)]
 pub struct DoorTile;
 
+/// generic marker component for all things interactable
 #[derive(Component)]
 pub struct InteractableTile;
 
+/// Tile component for buttons, levers and switches
+/// to be used in combination with [InteractableTile]
 #[derive(Component)]
 pub struct TriggerTile;
 
