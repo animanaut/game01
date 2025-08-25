@@ -7,6 +7,7 @@ use crate::{
     AppState::Running,
     controls::PlayerControlled,
     gold::Gold,
+    health::Hearts,
     tiles::{DoorTile, FloorTile, InteractableTile, SolidTile, Tile, TriggerTile},
     tutorial::Tutorial,
 };
@@ -313,6 +314,9 @@ fn spawn_sprite(
                 commands.entity(new_sprite).insert(SolidTile);
                 commands.entity(new_sprite).insert(InteractableTile);
                 commands.entity(new_sprite).insert(TriggerTile);
+            }
+            SpriteSheetTile::Heart => {
+                commands.entity(new_sprite).insert(Hearts(1));
             }
             SpriteSheetTile::GoldCoin => {
                 commands.entity(new_sprite).insert(Gold { coins: 1 });
