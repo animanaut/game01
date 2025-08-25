@@ -11,6 +11,7 @@ use crate::animation::Animation;
 use crate::animation::AnimationType;
 use crate::controls::{Down, Left, Right, Up};
 use crate::in_game::LevelFinished;
+use crate::in_game::LevelStarted;
 use crate::tutorial::CountDownFinished;
 use crate::tutorial::CountDownTutorialCounter;
 use crate::tutorial::Tutorial;
@@ -54,7 +55,10 @@ impl Plugin for Level01Plugin {
 // Events
 
 // Systems
-fn start_level01(mut spawn_sprite: EventWriter<SpawnSprite>) {
+fn start_level01(
+    mut spawn_sprite: EventWriter<SpawnSprite>,
+    mut started: EventWriter<LevelStarted>,
+) {
     debug!("starting {}", NAME);
 
     spawn_sprite.write(SpawnSprite {
@@ -125,6 +129,8 @@ fn start_level01(mut spawn_sprite: EventWriter<SpawnSprite>) {
         tile: SpriteSheetTile::LevelExit01,
         ..default()
     });
+
+    started.write(LevelStarted);
 }
 
 fn added_tutorial_components(

@@ -10,7 +10,7 @@ use crate::{
     animation::{Animation, AnimationType},
     app_states::{AppState, LevelState},
     controls::{Down, Left, PlayerControlled, Right, Up},
-    in_game::LevelFinished,
+    in_game::{LevelFinished, LevelStarted},
     sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
     tiles::TileCoordinate,
     tutorial::{Tutorial, TutorialCountdown},
@@ -47,7 +47,10 @@ impl Plugin for Level03Plugin {
 // Events
 
 // Systems
-fn start_level03(mut spawn_sprite: EventWriter<SpawnSprite>) {
+fn start_level03(
+    mut spawn_sprite: EventWriter<SpawnSprite>,
+    mut started: EventWriter<LevelStarted>,
+) {
     debug!("starting {}", NAME);
 
     spawn_sprite.write(SpawnSprite {
@@ -98,6 +101,8 @@ fn start_level03(mut spawn_sprite: EventWriter<SpawnSprite>) {
         tutorial: true,
         ..default()
     });
+
+    started.write(LevelStarted);
 }
 
 fn update_level03() {

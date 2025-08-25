@@ -11,7 +11,7 @@ use crate::{
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
     health::{Health, Hearts, PickedUpEmptyHeart, PickedUpHearts},
-    in_game::LevelFinished,
+    in_game::{LevelFinished, LevelStarted},
     sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
     tiles::{DoorTile, TileCoordinate},
     tutorial::Tutorial,
@@ -59,7 +59,10 @@ impl Plugin for Level05Plugin {
 // Events
 
 // Systems
-fn start_level05(mut spawn_sprite: EventWriter<SpawnSprite>) {
+fn start_level05(
+    mut started: EventWriter<LevelStarted>,
+    mut spawn_sprite: EventWriter<SpawnSprite>,
+) {
     debug!("starting {}", NAME);
 
     spawn_sprite.write(SpawnSprite {
@@ -118,6 +121,8 @@ fn start_level05(mut spawn_sprite: EventWriter<SpawnSprite>) {
         tutorial: true,
         ..default()
     });
+
+    started.write(LevelStarted);
 }
 
 fn added_player_controlled(

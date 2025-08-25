@@ -3,7 +3,10 @@ use bevy::app::Plugin;
 use AppState::Running;
 use bevy::prelude::*;
 
-use crate::{app_states::AppState, controls::PlayerControlled, gold::Gold, health::Health};
+use crate::{
+    app_states::AppState, controls::PlayerControlled, gold::Gold, health::Health,
+    in_game::LevelStarted,
+};
 
 // Constants
 const NAME: &str = "in_game_ui";
@@ -16,7 +19,8 @@ impl Plugin for InGameUIPlugin {
         app.add_systems(OnEnter(Running), start_ingame_ui)
             .add_systems(
                 Update,
-                (added_health_to_player, added_gold_to_player).run_if(in_state(Running)),
+                (level_started, added_health_to_player, added_gold_to_player)
+                    .run_if(in_state(Running)),
             )
             .add_systems(
                 Update,
@@ -44,6 +48,18 @@ struct HeartUIRoot(Entity);
 
 // Systems
 fn start_ingame_ui() {}
+
+fn level_started(
+    mut commands: Commands,
+    mut started: EventReader<LevelStarted>,
+    gold_ui: Query<Entity, With<InGameUIGold>>,
+) {
+    for _ in started.read() {
+        for ui in gold_ui.iter() {
+            commands.entity(ui).despawn();
+        }
+    }
+}
 
 fn added_health_to_player(
     mut commands: Commands,
@@ -85,11 +101,13 @@ fn added_gold_to_player(
 ) {
     for (_player, gold) in player_gold_added.iter() {
         debug!("player gold added ui {}", NAME);
-        for ui in gold_ui.iter() {
-            commands.entity(ui).despawn();
+        if gold.coins > 0 {
+            for ui in gold_ui.iter() {
+                commands.entity(ui).despawn();
+            }
+            let gold_root = commands.spawn(gold_ui_root(gold)).id();
+            debug!("player gold added ui {}", gold_root);
         }
-        let gold_root = commands.spawn(gold_ui_root(gold)).id();
-        debug!("player gold added ui {}", gold_root);
     }
 }
 
