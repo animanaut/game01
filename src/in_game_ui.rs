@@ -3,7 +3,7 @@ use bevy::app::Plugin;
 use AppState::Running;
 use bevy::prelude::*;
 
-use crate::{app_states::AppState, controls::PlayerControlled, health::Health};
+use crate::{app_states::AppState, controls::PlayerControlled, gold::Gold, health::Health};
 
 // Constants
 const NAME: &str = "in_game_ui";
@@ -14,13 +14,17 @@ pub struct InGameUIPlugin;
 impl Plugin for InGameUIPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(Running), start_ingame_ui)
-            .add_systems(Update, (added_health_to_player).run_if(in_state(Running)))
+            .add_systems(
+                Update,
+                (added_health_to_player, added_gold_to_player).run_if(in_state(Running)),
+            )
             .add_systems(
                 Update,
                 (changed_health_of_player)
                     .run_if(resource_exists::<HeartUIRoot>)
                     .run_if(in_state(Running)),
             )
+            .add_systems(Update, (changed_gold_of_player).run_if(in_state(Running)))
             .add_systems(OnExit(Running), stop_ingame_ui);
     }
 }
@@ -28,6 +32,9 @@ impl Plugin for InGameUIPlugin {
 // Components
 #[derive(Component)]
 struct InGameUI;
+
+#[derive(Component)]
+struct InGameUIGold;
 
 // Resources
 #[derive(Resource, Clone, Copy)]
@@ -71,6 +78,35 @@ fn changed_health_of_player(
     }
 }
 
+fn added_gold_to_player(
+    mut commands: Commands,
+    player_gold_added: Query<(Entity, &Gold), (With<PlayerControlled>, Added<Gold>)>,
+    gold_ui: Query<Entity, With<InGameUIGold>>,
+) {
+    for (_player, gold) in player_gold_added.iter() {
+        debug!("player gold added ui {}", NAME);
+        for ui in gold_ui.iter() {
+            commands.entity(ui).despawn();
+        }
+        let gold_root = commands.spawn(gold_ui_root(gold)).id();
+        debug!("player gold added ui {}", gold_root);
+    }
+}
+
+fn changed_gold_of_player(
+    mut commands: Commands,
+    player_gold_changed: Query<(Entity, &Gold), (With<PlayerControlled>, Changed<Gold>)>,
+    gold_ui: Query<Entity, With<InGameUIGold>>,
+) {
+    for (_player, gold) in player_gold_changed.iter() {
+        for ui in gold_ui.iter() {
+            commands.entity(ui).despawn();
+        }
+        let gold_root = commands.spawn(gold_ui_root(gold)).id();
+        debug!("player gold changed ui {}", gold_root);
+    }
+}
+
 fn stop_ingame_ui(mut commands: Commands, ui: Query<Entity, With<InGameUI>>) {
     debug!("stopping {}", NAME);
     for x in ui.iter() {
@@ -94,6 +130,21 @@ fn heart_ui_root(health: &Health) -> impl Bundle + use<> {
             "Health: {:?}/{:?}",
             health.hearts.0, health.max.0
         )),)],
+    )
+}
+
+fn gold_ui_root(gold: &Gold) -> impl Bundle + use<> {
+    (
+        InGameUI,
+        InGameUIGold,
+        Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            align_items: AlignItems::End,
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+        children![(Text::new(format!("Gold: {}", gold.coins)),)],
     )
 }
 
