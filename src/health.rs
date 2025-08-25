@@ -21,6 +21,18 @@ impl Plugin for HealthPlugin {
 
 // Components
 
+/// heart component to pickup
+#[derive(Component)]
+#[allow(dead_code)]
+pub struct Health {
+    hearts: Hearts,
+}
+
+/// heart component to pickup
+#[derive(Component)]
+#[allow(dead_code)]
+pub struct Hearts(usize);
+
 // Resources
 
 // Events

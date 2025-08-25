@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::app::Plugin;
 
-use AppState::{MainMenu, Running};
+use AppState::Running;
 use LevelState::Level04;
 use bevy::prelude::*;
 
@@ -206,7 +206,7 @@ fn countdown_tutorial_finished(
 }
 
 fn check_for_exit_level04(
-    mut next_state: ResMut<NextState<AppState>>,
+    mut next_state: ResMut<NextState<LevelState>>,
     players: Query<&TileCoordinate, (With<PlayerControlled>, Without<ExfilSprite>)>,
     exfils: Query<&TileCoordinate, (With<ExfilSprite>, Without<PlayerControlled>)>,
 ) {
@@ -215,7 +215,7 @@ fn check_for_exit_level04(
         for exfil_coordinate in exfils.iter() {
             if player_coordinate.eq2d(exfil_coordinate) {
                 // TODO: smoother transition, maybe with animation on an event
-                next_state.set(MainMenu);
+                next_state.set(LevelState::Level05);
             }
         }
     }

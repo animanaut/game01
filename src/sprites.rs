@@ -51,6 +51,11 @@ pub enum SpriteSheetTile {
     LongGrass,
     // walls
     BrickWall01,
+    // health / hearts
+    Heart,
+    EmptyHeart,
+    HalfHeart,
+    FullHeart,
     // valuables
     GoldCoin,
     GoldCoins,
@@ -83,6 +88,10 @@ impl SpriteSheetTile {
             SpriteSheetTile::GrassFlowers => SpriteSheetTile::get_index(6, 0),
             SpriteSheetTile::LongGrass => SpriteSheetTile::get_index(7, 0),
             SpriteSheetTile::BrickWall01 => SpriteSheetTile::get_index(10, 17),
+            SpriteSheetTile::Heart => SpriteSheetTile::get_index(39, 10),
+            SpriteSheetTile::EmptyHeart => SpriteSheetTile::get_index(40, 10),
+            SpriteSheetTile::HalfHeart => SpriteSheetTile::get_index(41, 10),
+            SpriteSheetTile::FullHeart => SpriteSheetTile::get_index(42, 10),
             SpriteSheetTile::GoldCoin => SpriteSheetTile::get_index(41, 3),
             SpriteSheetTile::GoldCoins => SpriteSheetTile::get_index(41, 4),
             SpriteSheetTile::GoldCoinBag => SpriteSheetTile::get_index(42, 4),
@@ -108,6 +117,10 @@ impl SpriteSheetTile {
             SpriteSheetTile::GrassFlowers => Color::linear_rgb(0.2, 1.0, 0.2),
             SpriteSheetTile::LongGrass => Color::linear_rgb(0.0, 1.0, 0.0),
             SpriteSheetTile::BrickWall01 => Color::linear_rgb(0.5, 0.1, 0.1),
+            SpriteSheetTile::Heart => Color::linear_rgb(1.0, 0.0, 0.0),
+            SpriteSheetTile::EmptyHeart => Color::linear_rgb(0.5, 0.0, 0.0),
+            SpriteSheetTile::HalfHeart => Color::linear_rgb(0.75, 0.0, 0.0),
+            SpriteSheetTile::FullHeart => Color::linear_rgb(1.0, 0.0, 0.0),
             SpriteSheetTile::GoldCoin => Color::linear_rgb(0.6, 0.6, 0.0),
             SpriteSheetTile::GoldCoins => Color::linear_rgb(0.6, 0.6, 0.0),
             SpriteSheetTile::GoldCoinBag => Color::linear_rgb(0.6, 0.6, 0.0),
