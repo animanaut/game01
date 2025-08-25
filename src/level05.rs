@@ -10,7 +10,7 @@ use crate::{
     animation::{Animation, AnimationType},
     app_states::{AppState, LevelState},
     controls::PlayerControlled,
-    health::{Health, Hearts, PickedUpHearts},
+    health::{Health, Hearts, PickedUpEmptyHeart, PickedUpHearts},
     in_game::LevelFinished,
     sprites::{ExfilSprite, MySprite, SpawnSprite, SpriteSheetTile},
     tiles::{DoorTile, TileCoordinate},
@@ -39,8 +39,14 @@ impl Plugin for Level05Plugin {
             )
             .add_systems(
                 Update,
-                (picked_up_heart,)
+                (picked_up_heart)
                     .run_if(on_event::<PickedUpHearts>)
+                    .run_if(in_state(Level05)),
+            )
+            .add_systems(
+                Update,
+                (picked_up_empty_heart)
+                    .run_if(on_event::<PickedUpEmptyHeart>)
                     .run_if(in_state(Level05)),
             )
             .add_systems(OnExit(Level05), stop_level05);
@@ -104,6 +110,12 @@ fn start_level05(mut spawn_sprite: EventWriter<SpawnSprite>) {
     spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 2, y: -1, z: 0 },
         tile: SpriteSheetTile::Heart,
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 4, y: -1, z: 0 },
+        tile: SpriteSheetTile::EmptyHeart,
         tutorial: true,
         ..default()
     });
@@ -115,7 +127,7 @@ fn added_player_controlled(
 ) {
     for added in added_player_controlled.iter() {
         commands.entity(added).insert(Health {
-            hearts: Hearts(1),
+            hearts: Hearts(2),
             max: Hearts(2),
         });
     }
@@ -135,6 +147,18 @@ fn picked_up_heart(
                 tile: SpriteSheetTile::LevelExit01,
                 ..default()
             });
+        }
+    }
+}
+
+fn picked_up_empty_heart(
+    mut commands: Commands,
+    mut pickups: EventReader<PickedUpEmptyHeart>,
+    hearts: Query<Entity, With<Hearts>>,
+) {
+    for _ in pickups.read() {
+        if let Ok(heart) = hearts.single() {
+            commands.entity(heart).insert(Tutorial);
         }
     }
 }

@@ -16,11 +16,12 @@ impl Plugin for HealthPlugin {
         app
             // events
             .add_event::<PickedUpHearts>()
+            .add_event::<PickedUpEmptyHeart>()
             // systems
             .add_systems(OnEnter(Running), start_health)
             .add_systems(
                 Update,
-                (update_health, check_for_heart).run_if(in_state(Running)),
+                (update_health, check_for_heart, check_for_empty_heart).run_if(in_state(Running)),
             )
             .add_systems(OnExit(Running), stop_health);
     }
@@ -39,6 +40,9 @@ pub struct Health {
 #[derive(Component, Debug, Copy, Clone)]
 pub struct Hearts(pub usize);
 
+#[derive(Component)]
+pub struct EmptyHeart;
+
 // Resources
 
 // Events
@@ -49,13 +53,22 @@ pub struct PickedUpHearts {
     pub hearts: Hearts,
 }
 
+#[derive(Event)]
+#[allow(dead_code)]
+pub struct PickedUpEmptyHeart {
+    pub entity: Entity,
+}
+
 // Systems
 fn start_health(mut _commands: Commands) {
     debug!("starting {}", NAME);
 }
 
-fn update_health() {
+fn update_health(healths: Query<(Entity, &Health)>) {
     debug!("updating {}", NAME);
+    for (entity, health) in healths.iter() {
+        debug!("entity: {}, health: {:?}", entity, health);
+    }
 }
 
 fn check_for_heart(
@@ -81,6 +94,24 @@ fn check_for_heart(
     }
 }
 
+fn check_for_empty_heart(
+    mut commands: Commands,
+    mut health_bearer: Query<(&TileCoordinate, &mut Health, Entity)>,
+    hearts: Query<(&TileCoordinate, Entity), With<EmptyHeart>>,
+    mut event: EventWriter<PickedUpEmptyHeart>,
+) {
+    debug!("checking hearts {}", NAME);
+    for (health_coordinate, mut health, has_health) in health_bearer.iter_mut() {
+        for (heart_coordinate, empty_heart) in hearts.iter() {
+            if health_coordinate.eq2d(heart_coordinate) {
+                health.max = Hearts(health.max.0 + 1);
+                event.write(PickedUpEmptyHeart { entity: has_health });
+                commands.entity(empty_heart).despawn();
+            }
+        }
+    }
+}
+
 fn stop_health(mut _commands: Commands) {
     debug!("stopping {}", NAME);
 }
@@ -100,6 +131,7 @@ mod tests {
 
         // when
         app.add_event::<PickedUpHearts>();
+        app.add_event::<PickedUpEmptyHeart>();
         app.add_systems(Update, check_for_heart);
         let entity = app
             .world_mut()
@@ -128,6 +160,7 @@ mod tests {
 
         // when
         app.add_event::<PickedUpHearts>();
+        app.add_event::<PickedUpEmptyHeart>();
         app.add_systems(Update, check_for_heart);
         let entity = app
             .world_mut()
@@ -147,5 +180,34 @@ mod tests {
         // then
         assert!(app.world().get::<Hearts>(heart).is_some());
         assert_eq!(app.world().get::<Health>(entity).unwrap().hearts.0, 2);
+    }
+
+    #[test]
+    fn should_pickup_empty_heart_to_increase_max_health() {
+        // given
+        let mut app = App::new();
+
+        // when
+        app.add_event::<PickedUpHearts>();
+        app.add_event::<PickedUpEmptyHeart>();
+        app.add_systems(Update, check_for_empty_heart);
+        let entity = app
+            .world_mut()
+            .spawn(Health {
+                hearts: Hearts(2),
+                max: Hearts(2),
+            })
+            .insert(TileCoordinate::default())
+            .id();
+        let empty_heart = app
+            .world_mut()
+            .spawn(EmptyHeart)
+            .insert(TileCoordinate::default())
+            .id();
+        app.update();
+
+        // then
+        assert!(app.world().get::<Hearts>(empty_heart).is_none());
+        assert_eq!(app.world().get::<Health>(entity).unwrap().max.0, 3);
     }
 }
