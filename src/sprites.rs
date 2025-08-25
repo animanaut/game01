@@ -74,7 +74,7 @@ pub enum SpriteSheetTile {
 }
 
 impl SpriteSheetTile {
-    fn index(&self) -> usize {
+    pub fn index(&self) -> usize {
         match self {
             SpriteSheetTile::Player01 => SpriteSheetTile::get_index(30, 9),
             SpriteSheetTile::LevelExit01 => SpriteSheetTile::get_index(2, 9),
@@ -216,7 +216,7 @@ impl SpawnSprite {
 }
 
 // Systems
-fn setup(
+pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,

@@ -15,6 +15,7 @@ use crate::animation::AnimationPlugin;
 use crate::game_camera::GameCameraPlugin;
 use crate::gold::GoldPlugin;
 use crate::health::HealthPlugin;
+use crate::in_game_ui::InGameUIPlugin;
 use crate::interaction::InteractionPlugin;
 use crate::level03::Level03Plugin;
 use crate::level04::Level04Plugin;
@@ -29,6 +30,7 @@ mod game_camera;
 mod gold;
 mod health;
 mod in_game;
+mod in_game_ui;
 mod interaction;
 mod keyboard_controller;
 mod level01;
@@ -73,6 +75,7 @@ fn main() {
             InteractionPlugin,
             HealthPlugin,
         ))
+        .add_plugins(InGameUIPlugin)
         .add_plugins((
             Level01Plugin,
             Level02Plugin,
