@@ -103,6 +103,20 @@ fn start_level05(
     });
 
     spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 1, y: 2, z: 1 },
+        tile: SpriteSheetTile::FullHeart,
+        color: Some(Color::linear_rgb(0.0, 1.0, 1.0)),
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
+        coordinate: TileCoordinate { x: 2, y: 2, z: 1 },
+        tile: SpriteSheetTile::FullHeart,
+        color: Some(Color::linear_rgb(0.0, 1.0, 1.0)),
+        ..default()
+    });
+
+    spawn_sprite.write(SpawnSprite {
         coordinate: TileCoordinate { x: 2, y: 1, z: 0 },
         tile: SpriteSheetTile::MagicDoor,
         color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
@@ -147,6 +161,12 @@ fn picked_up_heart(
         if let Ok(door) = doors.single() {
             commands.entity(door).despawn();
             spawn_sprite.write(SpawnSprite {
+                coordinate: TileCoordinate { x: 3, y: 2, z: 2 },
+                tile: SpriteSheetTile::FullHeart,
+                color: Some(Color::linear_rgb(0.0, 1.0, 1.0)),
+                ..default()
+            });
+            spawn_sprite.write(SpawnSprite {
                 coordinate: TileCoordinate { x: 2, y: 1, z: 0 },
                 tile: SpriteSheetTile::LevelExit01,
                 ..default()
@@ -159,9 +179,16 @@ fn picked_up_empty_heart(
     mut commands: Commands,
     mut pickups: EventReader<PickedUpEmptyHeart>,
     hearts: Query<Entity, With<Hearts>>,
+    mut spawn_sprite: EventWriter<SpawnSprite>,
 ) {
     for _ in pickups.read() {
         if let Ok(heart) = hearts.single() {
+            spawn_sprite.write(SpawnSprite {
+                coordinate: TileCoordinate { x: 3, y: 2, z: 1 },
+                tile: SpriteSheetTile::EmptyHeart,
+                color: Some(Color::linear_rgb(0.0, 0.5, 0.5)),
+                ..default()
+            });
             commands.entity(heart).insert(Tutorial);
         }
     }
